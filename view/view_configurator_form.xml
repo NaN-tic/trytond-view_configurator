@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
+this repository contains the full copyright notices and license terms. -->
+<form>
+    <label name="model"/>
+    <field name="model"/>
+    <label name="user"/>
+    <field name="user"/>
+    <label name="view"/>
+    <field name="view"/>
+    <notebook>
+      <page name="lines">
+        <field name="lines" colspan="2"/>
+      </page>
+      <page name="snapshot">
+        <field name="snapshot" colspan="2"/>
+      </page>
+      <page name="view_xml">
+        <field name="view_xml" colspan="2"/>
+      </page>
+    </notebook>
+    <group col="3" colspan="4" id="state">
+        <label name="state"/>
+        <field name="state"/>
+        <group col="4" id="buttons">
+            <button name="get_snapshot" string="Snapshot"/>
+            <button name="confirmed"/>
+            <button name="draft"/>
+            <button name="cancel" icon="tryton-clear"/>
+        </group>
+    </group>
+</form>
