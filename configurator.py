@@ -1,17 +1,16 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
-import datetime
 from collections import defaultdict
 from trytond.model import (Workflow, ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
-from trytond.pool import PoolMeta, Pool
-from trytond.pyson import Eval, If, Bool
+from trytond.pool import Pool
+from trytond.pyson import Bool, Eval
 from sql import Column, Literal
 from lxml import etree
 from trytond.rpc import RPC
 from trytond.transaction import Transaction
 
-__all__ = ['ViewConfigurator', 'ViewConfiguratorLine', 'ModelViewMixin'
+__all__ = ['ViewConfigurator', 'ViewConfiguratorLine', 'ModelViewMixin',
     'ViewConfiguratorSnapshot', 'ViewConfiguratorLineField',
     'ViewConfiguratorLineButton']
 
@@ -20,7 +19,6 @@ class ModelViewMixin:
 
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form'):
-        print("A:", view_id, view_type, cls.__name__)
         result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type)
 
         if cls.__name__  == 'view.configurator':
@@ -53,29 +51,38 @@ class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     field = fields.Many2One('ir.model.field', 'Field')
     button = fields.Many2One('ir.model.button', 'Button')
 
+STATES = [
+    ('draft','Draft'),
+    ('confirmed', 'Confirmed'),
+    ('cancel', 'Cancel'),
+    ]
+_STATES = {'readonly': Eval('state') != 'draft'}
+_DEPENDS = ['state']
+
 
 class ViewConfigurator(Workflow, ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
-    model= fields.Many2One('ir.model', 'Model', required=True, select=True)
-    model_str = fields.Function(fields.Char('Model String'), 'get_model_str')
-    user = fields.Many2One('res.user', 'User')
-    view = fields.Many2One('ir.ui.view', 'View', domain=[('type', '=', 'tree')],
-        select=True)
+    model = fields.Many2One('ir.model', 'Model', required=True, select=True,
+        states=_STATES, depends=_DEPENDS)
+    model_name = fields.Function(fields.Char('Model Name'),
+        'on_change_with_model_name')
+    user = fields.Many2One('res.user', 'User', states=_STATES, depends=_DEPENDS)
+    view = fields.Many2One('ir.ui.view', 'View', select=True, domain=[
+        ('type', '=', 'tree'),
+        ('model', '=', Eval('model_name')),
+        ], states=_STATES, depends=_DEPENDS+['model_name'])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
         readonly=True)
     field_lines = fields.One2Many('view.configurator.line.field', 'view',
-    'Lines')
+        'Lines', states=_STATES, depends=_DEPENDS)
     button_lines = fields.One2Many('view.configurator.line.button', 'view',
-        'Lines')
+        'Lines', states=_STATES, depends=_DEPENDS)
     lines = fields.One2Many('view.configurator.line', 'view',
-        'Lines')
-    view_xml = fields.Text('View xml')
-    state = fields.Selection([('draft','Draft'), ('confirmed', 'Confirmed'),
-        ('cancel', 'Cancel')], 'State', readonly=True, select=True,
-        required=True)
-
+        'Lines', states=_STATES, depends=_DEPENDS)
+    view_xml = fields.Text('View XML', readonly=True)
+    state = fields.Selection(STATES, 'State', readonly=True, select=True, required=True)
 
     @classmethod
     def __setup__(cls):
@@ -96,7 +103,7 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
             'cancel':{
                 'invisible':(Eval('state') != 'cancel'),
                 },
-            'get_snapshot': {},
+            'do_snapshot': {},
             })
 
         cls.__rpc__.update({
@@ -127,13 +134,23 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         pass
 
     @classmethod
+    def copy(cls, lines, default=None):
+        if default is None:
+            default = {}
+        else:
+            default = default.copy()
+        default.setdefault('snapshot', None)
+        default.setdefault('view_xml', None)
+        return super(ViewConfigurator, cls).copy(lines, default=default)
+
+    @classmethod
     def get_custom_view(cls, model_name, view_ids):
         pool = Pool()
-        print("Model:", model_name, "view_ids:", view_ids)
         Model = pool.get('ir.model')
         View = pool.get('ir.ui.view')
-        User = pool.get('res.user')
+
         user = Transaction().user
+
         domain = [('model.model','=', model_name)]
         if view_ids:
             domain += [('view', 'in', view_ids)]
@@ -144,16 +161,16 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
             cls.draft([custom_view])
             custom_view.create_snapshot()
             cls.confirmed([custom_view])
-            print("res:", custom_view.id)
             return custom_view.id
 
         model, = Model.search([('model', '=', model_name)])
 
         views = None
         if view_ids:
-            views = View.search([('id', 'in',[x.id for x in view_ids]), ('type','=', 'tree')],
-                limit=1)
-
+            views = View.search([
+                ('id', 'in', [x.id for x in view_ids]),
+                ('type','=', 'tree'),
+                ], limit=1)
 
         custom_view = cls()
         custom_view.model = model
@@ -163,31 +180,33 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         custom_view.save()
         custom_view.create_snapshot()
         cls.confirmed([custom_view])
-        print("return:", custom_view)
         return custom_view.id
 
-    def get_model_str(self, name=None):
-        print("*"*100, self.model and self.model.model or '')
-        return self.model and self.model.model or ''
+    @fields.depends('model')
+    def on_change_with_model_name(self, name=None):
+        return self.model and self.model.model or None
 
     def generate_xml(self):
-        xml = '<?xml version="1.0"?>'
-        xml += '<tree>'
+        xml = '<?xml version="1.0"?>\n'
+        xml += '<tree>\n'
         for line in self.lines:
             if line.field:
-                xml+= "<field name='%s' expand='%s' tree_invisible='%s'/>" % (
-                    line.field.name, line.expand or 0, 1 if line.searchable else 0)
+                xml+= "<field name='%s' %s %s/>\n" % (
+                    line.field.name,
+                    "expand='"+line.expand+"'" if line.expand else '',
+                    "tree_invisible='1'" if line.searchable else '',
+                    )
             if line.button:
-                xml += "<button name='%s' tree_invisible='%s' string='%s'/>" % (
-                    line.button.name, line.expand or 0, line.button.string
-                )
+                xml += "<button name='%s' %s/>\n" % (
+                    line.button.name,
+                    "colspan='"+line.expand+"'" if line.expand else '',
+                    )
         xml += '</tree>'
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(xml, parser)
         xarch, xfields = self._view_look_dom_arch(tree, 'tree')
         self.view_xml = xarch
         self.save()
-
 
     def create_snapshot(self):
         pool = Pool()
@@ -212,7 +231,6 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                 existing_snapshot.append(line.button)
 
         sbuttons = Button.search([('model', '=', self.model)])
-        buttons = {}
         for button in sbuttons:
             resources[button.name] = button
 
@@ -243,17 +261,15 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
 
         for child in tree:
             type_ = child.tag
-            view_xml = etree.tostring(child, encoding='utf-8').decode('utf-8')
             attributes = child.attrib
             name = attributes['name']
             if resources[name] not in existing_snapshot:
                 create_lines(type_, resources[name])
                 create_snapshot(type_, resources[name])
 
-
     @classmethod
     @ModelView.button
-    def get_snapshot(cls, views):
+    def do_snapshot(cls, views):
         for view in views:
             view.create_snapshot()
 
@@ -264,10 +280,15 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
 
     view = fields.Many2One('view.configurator',
         'View Configurator', required=True)
-    button = fields.Many2One('ir.model.button', 'Button')
+    button = fields.Many2One('ir.model.button', 'Button',
+        domain=[
+            ('model', '=', Eval('parent_model')),
+        ], depends=['parent_model'])
     expand = fields.Integer('Expand')
     searchable = fields.Boolean('Searchable')
-    type = fields.Selection([('ir.model.button', 'Button')], 'Type')
+    type = fields.Selection([
+        ('ir.model.button', 'Button'),
+        ], 'Type')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
 
@@ -275,15 +296,10 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
     def default_type():
         return 'ir.model.button'
 
-    @staticmethod
-    def default_type():
-        return 'ir.model.field'
-
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        if self.view:
-            return self.view.model
-        return None
+        return self.view.model.id if self.view else None
+
 
 class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
     '''View Configurator Line Field'''
@@ -291,10 +307,15 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
 
     view = fields.Many2One('view.configurator',
         'View Configurator', required=True)
-    field = fields.Many2One('ir.model.field', 'Field')
+    field = fields.Many2One('ir.model.field', 'Field',
+        domain=[
+            ('model', '=', Eval('parent_model')),
+        ], depends=['parent_model'])
     expand = fields.Integer('Expand')
     searchable = fields.Boolean('Searchable')
-    type = fields.Selection([('ir.model.field', 'Field')], 'Type')
+    type = fields.Selection([
+        ('ir.model.field', 'Field'),
+        ], 'Type')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
 
@@ -304,43 +325,82 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
 
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        if self.view:
-            return self.view.model
-        return None
+        return self.view.model.id if self.view else None
+
 
 class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
     '''View Configurator Line'''
     __name__ = 'view.configurator.line'
 
     view = fields.Many2One('view.configurator',
-        'View Configurator', required=True)
-    type = fields.Selection([('ir.model.button', 'Button'),
-        ('ir.model.field', 'Field')], 'Type')
+        'View Configurator', ondelete='CASCADE', required=True,
+        states={
+            'readonly': ((Eval('view_state') != 'draft')
+                & Bool(Eval('view'))),
+            },
+        depends=['view_state'])
+    type = fields.Selection([
+        ('ir.model.button', 'Button'),
+        ('ir.model.field', 'Field'),
+        ], 'Type', states={
+            'readonly': Eval('view_state') != 'draft',
+        }, depends= ['view_state'], required=True)
     field = fields.Many2One('ir.model.field', 'Field',
-        domain=[('model', '=', Eval('parent_view.model'))],
-        depends=['parent_model'])
-    button = fields.Many2One('ir.model.button', 'Button')
-    expand = fields.Integer('Expand')
-    searchable = fields.Boolean('Searchable')
+        domain=[('model', '=',
+            Eval('_parent_view', Eval('context', {})).get('model', -1))
+        ], states={
+            'readonly': Eval('view_state') != 'draft',
+            'required': Eval('type') == 'ir.model.field',
+            'invisible': Eval('type') != 'ir.model.field',
+        }, depends=['view_state', 'type'])
+    button = fields.Many2One('ir.model.button', 'Button',
+        domain=[('model', '=',
+            Eval('_parent_view', Eval('context', {})).get('model', -1))
+        ], states={
+            'readonly': Eval('view_state') != 'draft',
+            'required': Eval('type') == 'ir.model.button',
+            'invisible': Eval('type') != 'ir.model.button',
+        }, depends=['view_state', 'type'])
+    expand = fields.Integer('Expand',
+        states={
+            'readonly': Eval('view_state') != 'draft',
+        }, depends=['view_state', 'type'])
+    searchable = fields.Boolean('Searchable',
+        states={
+            'readonly': Eval('view_state') != 'draft',
+            'invisible': Eval('type') != 'ir.model.field',
+        }, depends=['view_state', 'type'])
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
-
-    @staticmethod
-    def default_expand():
-        return 0
+    model_name = fields.Function(fields.Char('Model Name'),
+        'on_change_with_model_name')
+    view_state = fields.Function(fields.Selection(STATES, 'View State'),
+        'on_change_with_view_state')
 
     @staticmethod
     def default_searchable():
         return False
 
+    @staticmethod
+    def default_type():
+        return 'ir.model.field'
+
+    @staticmethod
+    def default_view_state():
+        # TODO
+        return 'draft'
+
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        if self.view:
-            return self.view.model.id
-        return None
+        return self.view.model.id if self.view else None
 
-    def get_parent_model(self, name):
-        return self.view.model.id
+    @fields.depends('parent_model')
+    def on_change_with_model_name(self, name=None):
+        return self.parent_model and self.parent_model.model or None
+
+    @fields.depends('view', '_parent_view.state')
+    def on_change_with_view_state(self, name=None):
+        return self.view.state if self.view else 'draft'
 
     @staticmethod
     def union_models():
@@ -364,26 +424,22 @@ class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
     @classmethod
     def create(cls, vlist):
         pool = Pool()
+
         models_to_create = defaultdict(list)
-        for l in vlist:
-            print("1:", l)
-            type_ = l['type']
+        for line in vlist:
             type_ = 'view.configurator.line.field'
-            if 'button' in l['type'] :
+            if 'button' in line['type'] :
                 type_ = 'view.configurator.line.button'
-                if 'field' in l:
-                    del l['field']
+                if 'field' in line:
+                    del line['field']
             else:
-                if 'button' in l:
-                    del l['button']
-            models_to_create[type_].append(l)
+                if 'button' in line:
+                    del line['button']
+            models_to_create[type_].append(line)
 
         for model, arguments in models_to_create.items():
             Model = pool.get(model)
-            print("3:", Model, model, arguments)
             Model.create(arguments)
-
-
 
     @classmethod
     def write(cls, *args):
