@@ -197,9 +197,8 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                     "tree_invisible='1'" if line.searchable else '',
                     )
             if line.button:
-                xml += "<button name='%s' %s/>\n" % (
+                xml += "<button name='%s'/>\n" % (
                     line.button.name,
-                    "colspan='"+line.expand+"'" if line.expand else '',
                     )
         xml += '</tree>'
         parser = etree.XMLParser(remove_blank_text=True)
