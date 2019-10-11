@@ -20,7 +20,6 @@ class ModelViewMixin:
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form'):
         result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type)
-
         if cls.__name__  == 'view.configurator':
             return result
 
@@ -29,10 +28,14 @@ class ModelViewMixin:
 
         view_id = view_id or None
         ViewConfigurator = Pool().get('view.configurator')
+        user = Transaction().user or None
         viewConfigurator = ViewConfigurator.search([
             ('state', '=', 'confirmed'),
-            ('model.model','=', cls.__name__), ('view','=', view_id)],
-            limit=1)
+            ('model.model','=', cls.__name__),
+            ('view','=', view_id),
+            ('user', 'in', (None, user))
+            ], order=[('user', 'ASC')], limit=1)
+
 
         if not viewConfigurator:
             return result
@@ -41,6 +44,8 @@ class ModelViewMixin:
         result['arch'] = viewConfigurator.view_xml
 
         #TODO: cache
+        #key = (cls.__name__, view_id, view_type, )
+        #cls._fields_view_get_cache.set(key, result)
         return result
 
 class ViewConfiguratorSnapshot(ModelSQL, ModelView):
@@ -91,7 +96,8 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                 ('draft', 'confirmed'),
                 ('confirmed', 'draft'),
                 ('confirmed', 'cancel'),
-                ('draft', 'cancel')))
+                ('draft', 'cancel'),
+                ('cancel', 'draft')))
         cls._buttons.update({
             'confirmed': {
                 'invisible': (Eval('state') != 'draft'),
@@ -101,7 +107,7 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                 'invisible': (Eval('state') == 'draft'),
                 },
             'cancel':{
-                'invisible':(Eval('state') != 'cancel'),
+                'invisible':(Eval('state') == 'cancel'),
                 },
             'do_snapshot': {},
             })
@@ -131,7 +137,13 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
     @ModelView.button
     @Workflow.transition('cancel')
     def cancel(cls, views):
-        pass
+        pool = Pool()
+        Snapshot = pool.get('view.configurator.snapshot')
+        snapshots = []
+        for view in views:
+            snapshots += [x for x in view.snapshot]
+
+        Snapshot.delete(snapshots)
 
     @classmethod
     def copy(cls, lines, default=None):

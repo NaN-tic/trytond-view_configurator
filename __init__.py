@@ -13,4 +13,4 @@ def register():
         configurator.ViewConfiguratorLineButton,
         module='view_configurator', type_='model')
     Pool.register_mixin(
-        configurator.ModelViewMixin, ModelView, module='custom_view')
+        configurator.ModelViewMixin, ModelView, module='view_configurator')
