@@ -6,6 +6,5 @@ this repository contains the full copyright notices and license terms. -->
     <field name="field"/>
     <field name="button"/>
     <field name="expand"/>
-    <field name="parent_model"/>
     <field name="searchable"/>
 </tree>

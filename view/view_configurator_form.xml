@@ -20,13 +20,8 @@ this repository contains the full copyright notices and license terms. -->
       </page>
     </notebook>
     <group col="3" colspan="4" id="state">
-        <label name="state"/>
-        <field name="state"/>
         <group col="4" id="buttons">
-            <button name="confirmed"/>
-            <button name="draft"/>
             <button name="do_snapshot"/>
-            <button name="cancel" icon="tryton-clear"/>
         </group>
     </group>
 </form>
