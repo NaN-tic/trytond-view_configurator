@@ -19,7 +19,6 @@ class ModelViewMixin:
 
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form'):
-
         view_id = view_id or None
         ViewConfigurator = Pool().get('view.configurator')
         user = Transaction().user or None
@@ -29,23 +28,18 @@ class ModelViewMixin:
             ('user', 'in', (None, user))
             ], order=[('user', 'ASC')], limit=1)
 
-        if not viewConfigurator:
+        context = Transaction().context
+        if (not viewConfigurator or context.get('avoid_custom_view') or
+                cls.__name__  == 'view.configurator'):
             result = super(ModelViewMixin, cls).fields_view_get(view_id,
                 view_type)
             return result
 
         view_configurator, = viewConfigurator
-
         key = (cls.__name__, view_configurator.id)
         result = cls._fields_view_get_cache.get(key)
         if result:
             return result
-
-        context = Transaction().context
-        if (context.get('avoid_custom_view') or
-                cls.__name__  == 'view.configurator'):
-            return result
-
 
         result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type)
         if result.get('type') != 'tree':
@@ -72,10 +66,10 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         'on_change_with_model_name')
     user = fields.Many2One('res.user', 'User')
     view = fields.Many2One('ir.ui.view', 'View', select=True,
-        #domain=[
-        #('type', '=', 'tree'),
-        #('model', '=', Eval('model_name')),
-        #],
+        domain=[
+        ('type', 'in', (None,'tree')),
+        ('model', '=', Eval('model_name')),
+        ],
         depends=['model_name'])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
         readonly=True)
@@ -158,8 +152,8 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
     def create(cls, vlist):
         views = super(ViewConfigurator, cls).create(vlist)
         for view in views:
-             view.create_snapshot()
-             view.generate_xml()
+            view.create_snapshot()
+            view.generate_xml()
         ModelView._fields_view_get_cache.clear()
         return views
 
