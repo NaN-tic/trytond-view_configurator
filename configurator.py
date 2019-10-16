@@ -123,7 +123,7 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         Model = pool.get('ir.model')
         View = pool.get('ir.ui.view')
 
-        if view_id:
+        if view_id and view_id != 'null':
             view_id = int(view_id)
 
         user = Transaction().user
