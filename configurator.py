@@ -45,7 +45,7 @@ class ModelViewMixin:
         if result.get('type') != 'tree':
             return result
         result['arch'] = view_configurator.view_xml
-        result = cls._fields_view_get_cache.set(key, result)
+        cls._fields_view_get_cache.set(key, result)
         return result
 
 class ViewConfiguratorSnapshot(ModelSQL, ModelView):
@@ -170,11 +170,23 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         xml += '<tree>\n'
         for line in self.lines:
             if line.field:
-                xml+= "<field name='%s' %s %s/>\n" % (
-                    line.field.name,
-                    "expand='"+str(line.expand)+"'" if line.expand else '',
-                    "tree_invisible='1'" if line.searchable else '',
-                    )
+                if line.field.ttype == 'datetime':
+                    xml+= "<field name='%s' %s %s widget='date'/>\n" % (
+                        line.field.name,
+                        "expand='"+str(line.expand)+"'" if line.expand else '',
+                        "tree_invisible='1'" if line.searchable else '',
+                        )
+                    xml+= "<field name='%s' %s %s widget='time'/>\n" % (
+                        line.field.name,
+                        "expand='"+str(line.expand)+"'" if line.expand else '',
+                        "tree_invisible='1'" if line.searchable else '',
+                        )
+                else:
+                    xml+= "<field name='%s' %s %s/>\n" % (
+                        line.field.name,
+                        "expand='"+str(line.expand)+"'" if line.expand else '',
+                        "tree_invisible='1'" if line.searchable else '',
+                        )
             if line.button:
                 xml += "<button name='%s'/>\n" % (
                     line.button.name,
