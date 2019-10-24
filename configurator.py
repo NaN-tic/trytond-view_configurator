@@ -44,7 +44,14 @@ class ModelViewMixin:
         result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type)
         if result.get('type') != 'tree':
             return result
-        result['arch'] = view_configurator.view_xml
+        xml = view_configurator.generate_xml()
+
+        parser = etree.XMLParser(remove_blank_text=True)
+        tree = etree.fromstring(xml, parser)
+        xarch, xfields = cls._view_look_dom_arch(tree, 'tree',
+            result['field_childs'])
+        result['arch'] = xarch
+        result['fields'] = xfields
         cls._fields_view_get_cache.set(key, result)
         return result
 
@@ -79,7 +86,6 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         'Lines')
     lines = fields.One2Many('view.configurator.line', 'view',
         'Lines')
-    view_xml = fields.Text('View XML', readonly=True)
 
     @classmethod
     def __setup__(cls):
@@ -113,7 +119,6 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         else:
             default = default.copy()
         default.setdefault('snapshot', None)
-        default.setdefault('view_xml', None)
         return super(ViewConfigurator, cls).copy(lines, default=default)
 
 
@@ -123,7 +128,10 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         Model = pool.get('ir.model')
         View = pool.get('ir.ui.view')
 
-        if view_id and view_id != 'null':
+        if view_id == 'null':
+            view_id = None
+
+        if view_id and view_id != None:
             view_id = int(view_id)
 
         user = Transaction().user
@@ -139,7 +147,8 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         model, = Model.search([('model', '=', model_name)])
         custom_view = cls()
         custom_view.model = model
-        custom_view.view = View(view_id) if view_id else None
+        if view_id:
+            custom_view.view = View(view_id)
         custom_view.user = user
         custom_view.save()
         return custom_view.id
@@ -153,16 +162,12 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
         views = super(ViewConfigurator, cls).create(vlist)
         for view in views:
             view.create_snapshot()
-            view.generate_xml()
         ModelView._fields_view_get_cache.clear()
         return views
 
     @classmethod
     def write(cls, views, values, *args):
         super(ViewConfigurator, cls).write(views, values, *args)
-        if 'lines' in values:
-            for view in views:
-                view.generate_xml()
         ModelView._fields_view_get_cache.clear()
 
     def generate_xml(self):
@@ -188,15 +193,11 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                         "tree_invisible='1'" if line.searchable else '',
                         )
             if line.button:
-                xml += "<button name='%s'/>\n" % (
-                    line.button.name,
+                xml += "<button name='%s' string='%s' tree_invisible='1' help='' confirm=''/>\n" % (
+                    line.button.name, line.button.string
                     )
         xml += '</tree>'
-        parser = etree.XMLParser(remove_blank_text=True)
-        tree = etree.fromstring(xml, parser)
-        xarch, xfields = self._view_look_dom_arch(tree, 'tree')
-        self.view_xml = xarch
-        self.save()
+        return xml
 
     def create_snapshot(self):
         pool = Pool()
@@ -229,13 +230,14 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
                 line = FieldLine()
                 line.type = 'ir.model.field'
                 line.field = resource
+                line.sequence=100
             elif type_ == 'button':
                 line = ButtonLine()
                 line.type = 'ir.model.button'
                 line.button = resource
+                line.sequence=900
             line.searchable = invisible
             line.expand=expand
-            line.sequence=100
             line.view = self
             line.save()
 
