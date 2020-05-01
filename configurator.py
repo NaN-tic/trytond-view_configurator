@@ -10,10 +10,6 @@ from lxml import etree
 from trytond.rpc import RPC
 from trytond.transaction import Transaction
 
-__all__ = ['ViewConfigurator', 'ViewConfiguratorLine', 'ModelViewMixin',
-    'ViewConfiguratorSnapshot', 'ViewConfiguratorLineField',
-    'ViewConfiguratorLineButton']
-
 
 class ModelViewMixin:
 
@@ -55,6 +51,7 @@ class ModelViewMixin:
         cls._fields_view_get_cache.set(key, result)
         return result
 
+
 class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     'View configurator Snapshot'
     __name__ = 'view.configurator.snapshot'
@@ -64,7 +61,7 @@ class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     button = fields.Many2One('ir.model.button', 'Button')
 
 
-class ViewConfigurator(Workflow, ModelSQL, ModelView):
+class ViewConfigurator(ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
@@ -96,7 +93,7 @@ class ViewConfigurator(Workflow, ModelSQL, ModelView):
 
         cls.__rpc__.update({
             'get_custom_view': RPC(readonly=False, unique=False),
-        })
+            })
 
     @classmethod
     def delete(cls, views):
