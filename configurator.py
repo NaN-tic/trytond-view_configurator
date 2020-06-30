@@ -23,7 +23,6 @@ class ModelViewMixin:
             ('view','=', view_id),
             ('user', 'in', (None, user))
             ], order=[('user', 'ASC')], limit=1)
-
         context = Transaction().context
         if (not viewConfigurator or context.get('avoid_custom_view') or
                 cls.__name__  == 'view.configurator'):
@@ -41,7 +40,6 @@ class ModelViewMixin:
         if result.get('type') != 'tree':
             return result
         xml = view_configurator.generate_xml()
-
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(xml, parser)
         xarch, xfields = cls._view_look_dom_arch(tree, 'tree',
@@ -170,7 +168,9 @@ class ViewConfigurator(ModelSQL, ModelView):
     def generate_xml(self):
         xml = '<?xml version="1.0"?>\n'
         xml += '<tree>\n'
-        for line in self.lines:
+        new_lines, _ = self.get_difference()
+
+        for line in self.lines + tuple(new_lines):
             if line.field:
                 if line.field.ttype == 'datetime':
                     xml+= "<field name='%s' %s %s widget='date'/>\n" % (
@@ -189,14 +189,14 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "expand='"+str(line.expand)+"'" if line.expand else '',
                         "tree_invisible='1'" if line.searchable else '',
                         )
-            if line.button:
-                xml += "<button name='%s' string='%s' tree_invisible='1' help='' confirm=''/>\n" % (
+            elif line.button:
+                xml += "<button name='%s' string='%s' help='' confirm='' expand='1'/>\n" % (
                     line.button.name, line.button.string
                     )
         xml += '</tree>'
         return xml
 
-    def create_snapshot(self):
+    def get_difference(self):
         pool = Pool()
         Model = pool.get(self.model.model)
         Snapshot = pool.get('view.configurator.snapshot')
@@ -227,16 +227,17 @@ class ViewConfigurator(ModelSQL, ModelView):
                 line = FieldLine()
                 line.type = 'ir.model.field'
                 line.field = resource
+                line.view = self
                 line.sequence=100
             elif type_ == 'button':
                 line = ButtonLine()
                 line.type = 'ir.model.button'
                 line.button = resource
+                line.view = self
                 line.sequence=900
             line.searchable = invisible
             line.expand=expand
-            line.view = self
-            line.save()
+            return line
 
         def create_snapshot(type_, resource, expand, invisible):
             snapshot = Snapshot()
@@ -247,9 +248,12 @@ class ViewConfigurator(ModelSQL, ModelView):
                 snapshot.button = resource
             snapshot.invisible = invisible
             snapshot.expand = expand
-            snapshot.save()
+            snapshot.view = self
             existing_snapshot.append(resource)
+            return snapshot
 
+        lines = []
+        snapshots = []
         for child in tree:
             type_ = child.tag
             attributes = child.attrib
@@ -257,8 +261,21 @@ class ViewConfigurator(ModelSQL, ModelView):
             expand = attributes.get('expand', None)
             invisible = attributes.get('tree_invisible', False)
             if resources[name] not in existing_snapshot:
-                create_lines(type_, resources[name], expand, invisible)
-                create_snapshot(type_, resources[name], expand, invisible)
+                line = create_lines(type_, resources[name], expand, invisible)
+                snap = create_snapshot(type_, resources[name], expand, invisible)
+                lines.append(line)
+                snapshots.append(snap)
+        return lines, snapshots
+
+    def create_snapshot(self):
+        pool = Pool()
+        Snapshot = pool.get('view.configurator.snapshot')
+        FieldLine = pool.get('view.configurator.line.field')
+
+        (lines, snapshots) = self.get_difference()
+        FieldLine.save(lines)
+        Snapshot.save(snapshots)
+
 
     @classmethod
     @ModelView.button
