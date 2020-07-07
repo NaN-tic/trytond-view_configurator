@@ -190,9 +190,11 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "tree_invisible='1'" if line.searchable else '',
                         )
             elif line.button:
-                xml += "<button name='%s' string='%s' help='' confirm='' expand='1'/>\n" % (
-                    line.button.name, line.button.string
-                    )
+                pass
+                # TODO: remove on 5.4 and greater
+                #xml += "<button name='%s' help='' confirm='' expand='1'/>\n" % (
+                #    line.button.name
+                #    )
         xml += '</tree>'
         return xml
 
@@ -260,11 +262,14 @@ class ViewConfigurator(ModelSQL, ModelView):
             name = attributes['name']
             expand = attributes.get('expand', None)
             invisible = attributes.get('tree_invisible', False)
+            print(type_, name)
             if resources[name] not in existing_snapshot:
                 line = create_lines(type_, resources[name], expand, invisible)
                 snap = create_snapshot(type_, resources[name], expand, invisible)
-                lines.append(line)
-                snapshots.append(snap)
+                if line:
+                    lines.append(line)
+                if snap:
+                    snapshots.append(snap)
         return lines, snapshots
 
     def create_snapshot(self):
