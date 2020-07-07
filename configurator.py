@@ -190,8 +190,8 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "tree_invisible='1'" if line.searchable else '',
                         )
             elif line.button:
-                xml += "<button name='%s' string='%s' help='' confirm='' expand='1'/>\n" % (
-                    line.button.name, line.button.string
+                xml += "<button name='%s' help='' confirm='' expand='1'/>\n" % (
+                    line.button.name
                     )
         xml += '</tree>'
         return xml
