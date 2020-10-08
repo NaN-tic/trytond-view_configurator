@@ -1,10 +1,10 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from collections import defaultdict
-from trytond.model import (Workflow, ModelSQL, ModelView, fields,
+from trytond.model import (ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
 from trytond.pool import Pool
-from trytond.pyson import Bool, Eval
+from trytond.pyson import Eval
 from sql import Column, Literal
 from lxml import etree
 from trytond.rpc import RPC
