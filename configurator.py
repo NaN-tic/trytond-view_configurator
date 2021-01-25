@@ -171,7 +171,7 @@ class ViewConfigurator(ModelSQL, ModelView):
         new_lines, _ = self.get_difference()
 
         for line in self.lines + tuple(new_lines):
-            if line.field:
+            if getattr(line, 'field', None):
                 if line.field.ttype == 'datetime':
                     xml+= "<field name='%s' %s %s widget='date'/>\n" % (
                         line.field.name,
@@ -189,7 +189,7 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "expand='"+str(line.expand)+"'" if line.expand else '',
                         "tree_invisible='1'" if line.searchable else '',
                         )
-            elif line.button:
+            elif getattr(line, 'button', None):
                 xml += "<button name='%s' help='' confirm='' expand='1'/>\n" % (
                     line.button.name
                     )
