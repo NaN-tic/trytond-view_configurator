@@ -19,13 +19,13 @@ class ModelViewMixin:
         ViewConfigurator = Pool().get('view.configurator')
         user = Transaction().user or None
         viewConfigurator = ViewConfigurator.search([
-            ('model.model','=', cls.__name__),
-            ('view','=', view_id),
+            ('model.model', '=', cls.__name__),
+            ('view', '=', view_id),
             ('user', 'in', (None, user))
             ], order=[('user', 'ASC')], limit=1)
         context = Transaction().context
         if (not viewConfigurator or context.get('avoid_custom_view') or
-                cls.__name__  == 'view.configurator'):
+                cls.__name__ == 'view.configurator'):
             result = super(ModelViewMixin, cls).fields_view_get(view_id,
                 view_type)
             return result
@@ -69,8 +69,8 @@ class ViewConfigurator(ModelSQL, ModelView):
     user = fields.Many2One('res.user', 'User')
     view = fields.Many2One('ir.ui.view', 'View', select=True,
         domain=[
-        ('type', 'in', (None,'tree')),
-        ('model', '=', Eval('model_name')),
+            ('type', 'in', (None, 'tree')),
+            ('model', '=', Eval('model_name')),
         ],
         depends=['model_name'])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
@@ -228,15 +228,15 @@ class ViewConfigurator(ModelSQL, ModelView):
                 line.type = 'ir.model.field'
                 line.field = resource
                 line.view = self
-                line.sequence=100
+                line.sequence = 100
             elif type_ == 'button':
                 line = ButtonLine()
                 line.type = 'ir.model.button'
                 line.button = resource
                 line.view = self
-                line.sequence=900
+                line.sequence = 900
             line.searchable = invisible
-            line.expand=expand
+            line.expand = expand
             return line
 
         def create_snapshot(type_, resource, expand, invisible):
@@ -248,7 +248,6 @@ class ViewConfigurator(ModelSQL, ModelView):
                 snapshot.button = resource
             snapshot.invisible = invisible
             snapshot.expand = expand
-            snapshot.view = self
             existing_snapshot.append(resource)
             return snapshot
 
@@ -271,11 +270,12 @@ class ViewConfigurator(ModelSQL, ModelView):
         pool = Pool()
         Snapshot = pool.get('view.configurator.snapshot')
         FieldLine = pool.get('view.configurator.line.field')
+        ButtonLine = pool.get('view.configurator.line.button')
 
         (lines, snapshots) = self.get_difference()
-        FieldLine.save(lines)
+        FieldLine.save([x for x in lines if x.type == 'ir.model.field'])
+        ButtonLine.save([x for x in lines if x.type == 'ir.model.button'])
         Snapshot.save(snapshots)
-
 
     @classmethod
     @ModelView.button
