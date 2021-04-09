@@ -71,6 +71,7 @@ class ViewConfigurator(ModelSQL, ModelView):
         domain=[
             ('type', 'in', (None, 'tree')),
             ('model', '=', Eval('model_name')),
+            ('inherit', '=',  None),
         ],
         depends=['model_name'])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
@@ -255,6 +256,8 @@ class ViewConfigurator(ModelSQL, ModelView):
         snapshots = []
         for child in tree:
             type_ = child.tag
+            if type_ not in ('field', 'button'):
+                continue
             attributes = child.attrib
             name = attributes['name']
             expand = attributes.get('expand', None)
