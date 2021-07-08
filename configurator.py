@@ -42,10 +42,8 @@ class ModelViewMixin:
         xml = view_configurator.generate_xml()
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(xml, parser)
-        xarch, xfields = cls._view_look_dom_arch(tree, 'tree',
-            result['field_childs'])
-        result['arch'] = xarch
-        result['fields'] = xfields
+
+        result['arch'], result['fields'] = cls.parse_view(tree, 'tree', result['field_childs'])
         cls._fields_view_get_cache.set(key, result)
         return result
 
