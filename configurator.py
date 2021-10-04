@@ -12,6 +12,7 @@ from trytond.transaction import Transaction
 
 
 class ModelViewMixin:
+    __slots__ = ()
 
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form'):
