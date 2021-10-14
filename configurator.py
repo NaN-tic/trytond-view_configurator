@@ -74,12 +74,7 @@ class ViewConfigurator(ModelSQL, ModelView):
         depends=['model_name'])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
         readonly=True)
-    field_lines = fields.One2Many('view.configurator.line.field', 'view',
-        'Lines')
-    button_lines = fields.One2Many('view.configurator.line.button', 'view',
-        'Lines')
-    lines = fields.One2Many('view.configurator.line', 'view',
-        'Lines')
+    lines = fields.One2Many('view.configurator.line', 'view', "Lines")
 
     @classmethod
     def __setup__(cls):
@@ -87,7 +82,6 @@ class ViewConfigurator(ModelSQL, ModelView):
         cls._buttons.update({
             'do_snapshot': {},
             })
-
         cls.__rpc__.update({
             'get_custom_view': RPC(readonly=False, unique=False),
             })
@@ -114,7 +108,6 @@ class ViewConfigurator(ModelSQL, ModelView):
             default = default.copy()
         default.setdefault('snapshot', None)
         return super(ViewConfigurator, cls).copy(lines, default=default)
-
 
     @classmethod
     def get_custom_view(cls, model_name, view_id):
@@ -189,8 +182,10 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "tree_invisible='1'" if line.searchable else '',
                         )
             elif getattr(line, 'button', None):
-                xml += "<button name='%s' help='' confirm='' expand='1'/>\n" % (
-                    line.button.name
+                xml += "<button name='%s' help='' confirm='' %s %s/>\n" % (
+                    line.button.name,
+                    "expand='"+str(line.expand)+"'" if line.expand else '',
+                    "tree_invisible='1'" if line.searchable else '',
                     )
         xml += '</tree>'
         return xml
@@ -368,7 +363,7 @@ class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
         }, depends=['type'])
     searchable = fields.Boolean('Searchable',
         states={
-            'invisible': Eval('type') != 'ir.model.field',
+            # 'invisible': Eval('type') != 'ir.model.field',
         }, depends=[ 'type'])
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
