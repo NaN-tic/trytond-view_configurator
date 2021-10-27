@@ -240,8 +240,6 @@ class ViewConfigurator(ModelSQL, ModelView):
                 snapshot.field = resource
             else:
                 snapshot.button = resource
-            snapshot.invisible = invisible
-            snapshot.expand = expand
             existing_snapshot.append(resource)
             return snapshot
 
