@@ -349,14 +349,14 @@ class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
         ], states={
             'required': Eval('type') == 'ir.model.field',
             'invisible': Eval('type') != 'ir.model.field',
-        }, depends=['type'])
+        }, depends=['type', 'view'])
     button = fields.Many2One('ir.model.button', 'Button',
         domain=[('model', '=',
             Eval('_parent_view', Eval('context', {})).get('model', -1))
         ], states={
             'required': Eval('type') == 'ir.model.button',
             'invisible': Eval('type') != 'ir.model.button',
-        }, depends=['type'])
+        }, depends=['type', 'view'])
     expand = fields.Integer('Expand',
         states={
         }, depends=['type'])
