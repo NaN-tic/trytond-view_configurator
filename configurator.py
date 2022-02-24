@@ -14,7 +14,7 @@ from trytond.transaction import Transaction
 class ModelViewMixin:
 
     @classmethod
-    def fields_view_get(cls, view_id=None, view_type='form'):
+    def fields_view_get(cls, view_id=None, view_type='form', level=None):
         view_id = view_id or None
         ViewConfigurator = Pool().get('view.configurator')
         user = Transaction().user or None
@@ -27,7 +27,7 @@ class ModelViewMixin:
         if (not viewConfigurator or context.get('avoid_custom_view') or
                 cls.__name__ == 'view.configurator'):
             result = super(ModelViewMixin, cls).fields_view_get(view_id,
-                view_type)
+                view_type, level)
             return result
 
         view_configurator, = viewConfigurator
@@ -36,14 +36,19 @@ class ModelViewMixin:
         if result:
             return result
 
-        result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type)
+        result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type,
+            level)
         if result.get('type') != 'tree':
             return result
         xml = view_configurator.generate_xml()
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.fromstring(xml, parser)
 
-        result['arch'], result['fields'] = cls.parse_view(tree, 'tree', result['field_childs'])
+        if level is None:
+            level = 1 if result['type'] == 'tree' else 0
+
+        result['arch'], result['fields'] = cls.parse_view(tree, 'tree',
+            result['field_childs'], level=level)
         cls._fields_view_get_cache.set(key, result)
         return result
 
