@@ -1,14 +1,13 @@
-# This file is part view_configurator module for Tryton.
-# The COPYRIGHT file at the top level of this repository contains
-# the full copyright notices and license terms.
-import unittest
+
+# This file is part of Tryton.  The COPYRIGHT file at the top level of
+# this repository contains the full copyright notices and license terms.
+
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
-from trytond.tests.test_tryton import suite as test_suite
 from trytond.pool import Pool
 
 
 class ViewConfiguratorTestCase(ModuleTestCase):
-    'Test View Configurator module'
+    'Test ViewConfigurator module'
     module = 'view_configurator'
 
     @with_transaction()
@@ -36,8 +35,4 @@ class ViewConfiguratorTestCase(ModuleTestCase):
         self.assertTrue(conf1.id)
 
 
-def suite():
-    suite = test_suite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
-            ViewConfiguratorTestCase))
-    return suite
+del ModuleTestCase
