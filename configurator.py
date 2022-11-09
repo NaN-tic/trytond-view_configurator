@@ -67,11 +67,11 @@ class ViewConfigurator(ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
-    model = fields.Many2One('ir.model', 'Model', required=True, select=True)
+    model = fields.Many2One('ir.model', 'Model', required=True)
     model_name = fields.Function(fields.Char('Model Name'),
         'on_change_with_model_name')
     user = fields.Many2One('res.user', 'User')
-    view = fields.Many2One('ir.ui.view', 'View', select=True,
+    view = fields.Many2One('ir.ui.view', 'View',
         domain=[
             ('type', 'in', (None, 'tree')),
             ('model', '=', Eval('model_name')),
