@@ -338,7 +338,7 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
         return self.view.model.id if self.view else None
 
 
-class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
+class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
     '''View Configurator Line'''
     __name__ = 'view.configurator.line'
 
