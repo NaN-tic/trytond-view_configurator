@@ -181,6 +181,13 @@ class ViewConfigurator(ModelSQL, ModelView):
                         "expand='"+str(line.expand)+"'" if line.expand else '',
                         "tree_invisible='1'" if line.searchable else '',
                         )
+                elif line.field.ttype in ['integer', 'numeric', 'float']:
+                    xml+= "<field name='%s' %s %s %s/>\n" % (
+                        line.field.name,
+                        "expand='"+str(line.expand)+"'" if line.expand else '',
+                        "sum='"+line.field.name+"'" if line.sum_ else '',
+                        "tree_invisible='1'" if line.searchable else '',
+                        )
                 else:
                     xml+= "<field name='%s' %s %s/>\n" % (
                         line.field.name,
@@ -328,6 +335,7 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
         ], 'Type')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
+    sum_ = fields.Boolean('Sum')
 
     @staticmethod
     def default_type():
@@ -373,6 +381,10 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
         'on_change_with_parent_model')
     model_name = fields.Function(fields.Char('Model Name'),
         'on_change_with_model_name')
+    sum_ = fields.Boolean('Sum',
+        states={
+            'invisible': (Eval('type') != 'ir.model.field')
+        }, depends=['type'])
 
     @staticmethod
     def default_searchable():
