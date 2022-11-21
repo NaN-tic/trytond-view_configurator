@@ -14,4 +14,6 @@ this repository contains the full copyright notices and license terms. -->
     <field name="searchable"/>
     <label name="sequence"/>
     <field name="sequence"/>
+    <label name="sum_"/>
+    <field name="sum_"/>
 </form>
