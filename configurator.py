@@ -185,7 +185,8 @@ class ViewConfigurator(ModelSQL, ModelView):
                     xml+= "<field name='%s' %s %s %s/>\n" % (
                         line.field.name,
                         "expand='"+str(line.expand)+"'" if line.expand else '',
-                        "sum='"+line.field.name+"'" if line.sum_ else '',
+                        "sum='"+line.field.name+"'" if hasattr(
+                            line, 'sum_') and line.sum_ else '',
                         "tree_invisible='1'" if line.searchable else '',
                         )
                 else:
