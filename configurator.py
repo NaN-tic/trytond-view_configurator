@@ -170,6 +170,9 @@ class ViewConfigurator(ModelSQL, ModelView):
 
         for line in self.lines + tuple(new_lines):
             if getattr(line, 'field', None):
+                if line.field.name in ('create_uid', 'create_date',
+                        'write_uid', 'write_date'):
+                    continue
                 if line.field.ttype == 'datetime':
                     xml+= "<field name='%s' %s %s widget='date'/>\n" % (
                         line.field.name,
