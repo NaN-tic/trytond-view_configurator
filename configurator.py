@@ -349,10 +349,7 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
         ], 'Type')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
-    sum_ = fields.Boolean('Sum', states={
-            'invisible': ~Eval('field_type').in_(['integer', 'numeric',
-                    'float', 'timedelta']),
-            })
+    sum_ = fields.Boolean('Sum')
 
     @staticmethod
     def default_type():
@@ -397,18 +394,14 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
             ], "Optional", help="If left empty, the field is not optional. If "
         "set to 'Show', the field is optional and shown by default. If set "
         "to 'Hide', the field is optional and hidden by default.")
-    searchable = fields.Boolean('Searchable',
-        states={
-            # 'invisible': Eval('type') != 'ir.model.field',
-        }, depends=[ 'type'])
+    searchable = fields.Boolean('Searchable')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
     model_name = fields.Function(fields.Char('Model Name'),
         'on_change_with_model_name')
-    sum_ = fields.Boolean('Sum',
-        states={
+    sum_ = fields.Boolean('Sum', states={
             'invisible': (Eval('type') != 'ir.model.field')
-        }, depends=['type'])
+            }, depends=['type'])
 
     @staticmethod
     def default_searchable():
