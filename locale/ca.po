@@ -1,0 +1,244 @@
+#
+# Albert Cervera i Areny <albert@nan-tic.com>, 2023.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: Albert Cervera i Areny <albert@nan-tic.com>\n"
+"PO-Revision-Date: 2023-03-28 12:30+0200\n"
+"Project-Id-Version: \n"
+"Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
+"Language: ca_ES\n"
+"Content-Transfer-Encoding: 8bit\n"
+"MIME-Version: 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 20.12.0\n"
+
+msgctxt "field:view.configurator,lines:"
+msgid "Lines"
+msgstr "Línies"
+
+msgctxt "field:view.configurator,model:"
+msgid "Model"
+msgstr "Model"
+
+msgctxt "field:view.configurator,model_name:"
+msgid "Model Name"
+msgstr "Nom del model"
+
+msgctxt "field:view.configurator,snapshot:"
+msgid "Snapshot"
+msgstr "Instantània"
+
+msgctxt "field:view.configurator,user:"
+msgid "User"
+msgstr "Usuari"
+
+msgctxt "field:view.configurator,view:"
+msgid "View"
+msgstr "Vista"
+
+msgctxt "field:view.configurator.line,button:"
+msgid "Button"
+msgstr "Botó"
+
+msgctxt "field:view.configurator.line,expand:"
+msgid "Expand"
+msgstr "Expandir"
+
+msgctxt "field:view.configurator.line,field:"
+msgid "Field"
+msgstr "Camp"
+
+msgctxt "field:view.configurator.line,model_name:"
+msgid "Model Name"
+msgstr "Nom del model"
+
+msgctxt "field:view.configurator.line,optional:"
+msgid "Optional"
+msgstr "Opcional"
+
+msgctxt "field:view.configurator.line,parent_model:"
+msgid "Model"
+msgstr "Model"
+
+msgctxt "field:view.configurator.line,searchable:"
+msgid "Searchable"
+msgstr "Cercable"
+
+msgctxt "field:view.configurator.line,sum_:"
+msgid "Sum"
+msgstr "Suma"
+
+msgctxt "field:view.configurator.line,type:"
+msgid "Type"
+msgstr "Tipus"
+
+msgctxt "field:view.configurator.line,view:"
+msgid "View Configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "field:view.configurator.line.button,button:"
+msgid "Button"
+msgstr "Botó"
+
+msgctxt "field:view.configurator.line.button,expand:"
+msgid "Expand"
+msgstr "Expandir"
+
+msgctxt "field:view.configurator.line.button,optional:"
+msgid "Optional"
+msgstr "Opcional"
+
+msgctxt "field:view.configurator.line.button,parent_model:"
+msgid "Model"
+msgstr "Model"
+
+msgctxt "field:view.configurator.line.button,searchable:"
+msgid "Searchable"
+msgstr "Cercable"
+
+msgctxt "field:view.configurator.line.button,type:"
+msgid "Type"
+msgstr "Tipus"
+
+msgctxt "field:view.configurator.line.button,view:"
+msgid "View Configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "field:view.configurator.line.field,expand:"
+msgid "Expand"
+msgstr "Expandir"
+
+msgctxt "field:view.configurator.line.field,field:"
+msgid "Field"
+msgstr "Camp"
+
+msgctxt "field:view.configurator.line.field,optional:"
+msgid "Optional"
+msgstr "Opcional"
+
+msgctxt "field:view.configurator.line.field,parent_model:"
+msgid "Model"
+msgstr "Model"
+
+msgctxt "field:view.configurator.line.field,searchable:"
+msgid "Searchable"
+msgstr "Cercable"
+
+msgctxt "field:view.configurator.line.field,sum_:"
+msgid "Sum"
+msgstr "Suma"
+
+msgctxt "field:view.configurator.line.field,type:"
+msgid "Type"
+msgstr "Tipus"
+
+msgctxt "field:view.configurator.line.field,view:"
+msgid "View Configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "field:view.configurator.snapshot,button:"
+msgid "Button"
+msgstr "Botó"
+
+msgctxt "field:view.configurator.snapshot,field:"
+msgid "Field"
+msgstr "Camp"
+
+msgctxt "field:view.configurator.snapshot,view:"
+msgid "View"
+msgstr "Veure"
+
+msgctxt "help:view.configurator.line,optional:"
+msgid ""
+"If left empty, the field is not optional. If set to 'Show', the field is "
+"optional and shown by default. If set to 'Hide', the field is optional and "
+"hidden by default."
+msgstr ""
+"Si es deixa buit, el camp no és opcional. Si s'estableix a \"Mostrar\", el "
+"camp és opcional i es mostra per defecte. Si s'estableix a \"Amagar\", el "
+"camp és opcional i s'oculta per defecte."
+
+msgctxt "model:ir.action,name:act_view_configurator_form"
+msgid "View Configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "model:ir.model.button,string:cancel_button"
+msgid "Cancel"
+msgstr "Cancel·lar"
+
+msgctxt "model:ir.model.button,string:confirmed_button"
+msgid "Confirmed"
+msgstr "Confirmat"
+
+msgctxt "model:ir.model.button,string:draft_button"
+msgid "Draft"
+msgstr "Esborrany"
+
+msgctxt "model:ir.model.button,string:snapshot_button"
+msgid "Snapshot"
+msgstr "Instantània"
+
+msgctxt "model:ir.ui.menu,name:menu_view_configurator"
+msgid "View configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "model:view.configurator,name:"
+msgid "View Configurator"
+msgstr "Configurador de vistes"
+
+msgctxt "model:view.configurator.line,name:"
+msgid "View Configurator Line"
+msgstr "Línia del configurador de vistes"
+
+msgctxt "model:view.configurator.line.button,name:"
+msgid "View Configurator Line Button"
+msgstr "Línia botó del configurador de vistes"
+
+msgctxt "model:view.configurator.line.field,name:"
+msgid "View Configurator Line Field"
+msgstr "Línia camp del configurador de vistes"
+
+msgctxt "model:view.configurator.snapshot,name:"
+msgid "View configurator Snapshot"
+msgstr "Instantània del configurador de vistes"
+
+msgctxt "selection:view.configurator.line,optional:"
+msgid "Hide"
+msgstr "Amagar"
+
+msgctxt "selection:view.configurator.line,optional:"
+msgid "Show"
+msgstr "Mostrar"
+
+msgctxt "selection:view.configurator.line,type:"
+msgid "Button"
+msgstr "Botó"
+
+msgctxt "selection:view.configurator.line,type:"
+msgid "Field"
+msgstr "Camp"
+
+msgctxt "selection:view.configurator.line.button,optional:"
+msgid "Hide"
+msgstr "Amagar"
+
+msgctxt "selection:view.configurator.line.button,optional:"
+msgid "Show"
+msgstr "Mostrar"
+
+msgctxt "selection:view.configurator.line.button,type:"
+msgid "Button"
+msgstr "Botó"
+
+msgctxt "selection:view.configurator.line.field,optional:"
+msgid "Hide"
+msgstr "Amagar"
+
+msgctxt "selection:view.configurator.line.field,optional:"
+msgid "Show"
+msgstr "Mostrar"
+
+msgctxt "selection:view.configurator.line.field,type:"
+msgid "Field"
+msgstr "Camp"
