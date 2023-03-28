@@ -173,37 +173,37 @@ class ViewConfigurator(ModelSQL, ModelView):
                 if line.field.name in ('create_uid', 'create_date',
                         'write_uid', 'write_date'):
                     continue
+
+                name = 'name="%s"' % line.field.name
+
+                optional = ''
+                if line.optional == 'show':
+                    optional = 'optional="0"'
+                elif line.optional == 'hide':
+                    optional = 'optional="1"'
+
+                invisible = ''
+                if line.searchable:
+                    invisible = 'tree_invisible="1"'
+
+                expand = ''
+                if line.expand:
+                    expand = 'expand="%s"' % line.expand
+
+                sum_ = ''
+                if (getattr(line, 'sum_', None) and line.field.ttype in (
+                        'integer', 'float', 'numeric', 'timedelta')):
+                    sum_ = 'sum="%s"' % line.field.name
+
+                attributes = ' '.join([name, optional, invisible, expand, sum_])
+
                 if line.field.ttype == 'datetime':
-                    xml+= "<field name='%s' %s %s widget='date'/>\n" % (
-                        line.field.name,
-                        "expand='"+str(line.expand)+"'" if line.expand else '',
-                        "tree_invisible='1'" if line.searchable else '',
-                        )
-                    xml+= "<field name='%s' %s %s widget='time'/>\n" % (
-                        line.field.name,
-                        "expand='"+str(line.expand)+"'" if line.expand else '',
-                        "tree_invisible='1'" if line.searchable else '',
-                        )
-                elif line.field.ttype in ['integer', 'numeric', 'float']:
-                    xml+= "<field name='%s' %s %s %s/>\n" % (
-                        line.field.name,
-                        "expand='"+str(line.expand)+"'" if line.expand else '',
-                        "sum='"+line.field.name+"'" if hasattr(
-                            line, 'sum_') and line.sum_ else '',
-                        "tree_invisible='1'" if line.searchable else '',
-                        )
+                    xml+= "<field %s widget='date'/>\n" % attributes
+                    xml+= "<field %s widget='time'/>\n" % attributes
                 else:
-                    xml+= "<field name='%s' %s %s/>\n" % (
-                        line.field.name,
-                        "expand='"+str(line.expand)+"'" if line.expand else '',
-                        "tree_invisible='1'" if line.searchable else '',
-                        )
+                    xml+= "<field %s/>\n" % attributes
             elif getattr(line, 'button', None):
-                xml += "<button name='%s' help='' confirm='' %s %s/>\n" % (
-                    line.button.name,
-                    "expand='"+str(line.expand)+"'" if line.expand else '',
-                    "tree_invisible='1'" if line.searchable else '',
-                    )
+                xml += "<button %s/>\n" % attributes
         xml += '</tree>'
         return xml
 
@@ -306,6 +306,11 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
             ('model', '=', Eval('parent_model')),
         ], depends=['parent_model'])
     expand = fields.Integer('Expand')
+    optional = fields.Selection([
+            (None, ''),
+            ('show', 'Show'),
+            ('hide', 'Hide'),
+            ], 'Optional')
     searchable = fields.Boolean('Searchable')
     type = fields.Selection([
         ('ir.model.button', 'Button'),
@@ -333,13 +338,21 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
             ('model', '=', Eval('parent_model')),
         ], depends=['parent_model'])
     expand = fields.Integer('Expand')
+    optional = fields.Selection([
+            (None, ''),
+            ('show', 'Show'),
+            ('hide', 'Hide'),
+            ], 'Optional')
     searchable = fields.Boolean('Searchable')
     type = fields.Selection([
         ('ir.model.field', 'Field'),
         ], 'Type')
     parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
         'on_change_with_parent_model')
-    sum_ = fields.Boolean('Sum')
+    sum_ = fields.Boolean('Sum', states={
+            'invisible': ~Eval('field_type').in_(['integer', 'numeric',
+                    'float', 'timedelta']),
+            })
 
     @staticmethod
     def default_type():
@@ -377,6 +390,13 @@ class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
     expand = fields.Integer('Expand',
         states={
         }, depends=['type'])
+    optional = fields.Selection([
+            (None, ''),
+            ('show', 'Show'),
+            ('hide', 'Hide'),
+            ], "Optional", help="If left empty, the field is not optional. If "
+        "set to 'Show', the field is optional and shown by default. If set "
+        "to 'Hide', the field is optional and hidden by default.")
     searchable = fields.Boolean('Searchable',
         states={
             # 'invisible': Eval('type') != 'ir.model.field',
