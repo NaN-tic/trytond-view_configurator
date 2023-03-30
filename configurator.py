@@ -272,7 +272,12 @@ class ViewConfigurator(ModelSQL, ModelView):
             attributes = child.attrib
             name = attributes['name']
             expand = attributes.get('expand', None)
-            optional = attributes.get('optional', None)
+            if attributes.get('optional', None) == '0':
+                optional = 'hide'
+            elif attributes.get('optional', None) == '1':
+                optional = 'show'
+            else:
+                optional = None
             invisible = attributes.get('tree_invisible', False)
             if resources[name] not in existing_snapshot:
                 line = create_lines(type_, resources[name], expand, optional,
