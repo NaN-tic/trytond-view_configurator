@@ -203,6 +203,8 @@ class ViewConfigurator(ModelSQL, ModelView):
                 else:
                     xml+= "<field %s/>\n" % attributes
             elif getattr(line, 'button', None):
+                name = 'name="%s"' % line.button.name
+                attributes = ' '.join([name, optional, invisible, expand, sum_])
                 xml += "<button %s/>\n" % attributes
         xml += '</tree>'
         return xml
@@ -233,7 +235,7 @@ class ViewConfigurator(ModelSQL, ModelView):
         for button in sbuttons:
             resources[button.name] = button
 
-        def create_lines(type_, resource, expand, invisible):
+        def create_lines(type_, resource, expand, optional, invisible):
             if type_ == 'field':
                 line = FieldLine()
                 line.type = 'ir.model.field'
@@ -248,9 +250,10 @@ class ViewConfigurator(ModelSQL, ModelView):
                 line.sequence = 900
             line.searchable = invisible
             line.expand = expand
+            line.optional = optional
             return line
 
-        def create_snapshot(type_, resource, expand, invisible):
+        def create_snapshot(type_, resource):
             snapshot = Snapshot()
             snapshot.view = self
             if type_ == 'field':
@@ -269,10 +272,12 @@ class ViewConfigurator(ModelSQL, ModelView):
             attributes = child.attrib
             name = attributes['name']
             expand = attributes.get('expand', None)
+            optional = attributes.get('optional', None)
             invisible = attributes.get('tree_invisible', False)
             if resources[name] not in existing_snapshot:
-                line = create_lines(type_, resources[name], expand, invisible)
-                snap = create_snapshot(type_, resources[name], expand, invisible)
+                line = create_lines(type_, resources[name], expand, optional,
+                    invisible)
+                snap = create_snapshot(type_, resources[name])
                 lines.append(line)
                 snapshots.append(snap)
         return lines, snapshots
