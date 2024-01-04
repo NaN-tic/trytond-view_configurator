@@ -452,6 +452,7 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
     def create(cls, vlist):
         pool = Pool()
 
+        vlist = [x.copy() for x in vlist]
         models_to_create = defaultdict(list)
         for line in vlist:
             type_ = 'view.configurator.line.field'
