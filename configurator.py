@@ -314,7 +314,7 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
     button = fields.Many2One('ir.model.button', 'Button',
         domain=[
             ('model', '=', Eval('parent_model')),
-        ], depends=['parent_model'])
+        ])
     expand = fields.Integer('Expand')
     optional = fields.Selection([
             (None, ''),
@@ -346,7 +346,7 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
     field = fields.Many2One('ir.model.field', 'Field',
         domain=[
             ('model', '=', Eval('parent_model')),
-        ], depends=['parent_model'])
+        ])
     expand = fields.Integer('Expand')
     optional = fields.Selection([
             (None, ''),
@@ -386,17 +386,17 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
         ], states={
             'required': Eval('type') == 'ir.model.field',
             'invisible': Eval('type') != 'ir.model.field',
-        }, depends=['type', 'view'])
+        })
     button = fields.Many2One('ir.model.button', 'Button',
         domain=[('model', '=',
             Eval('_parent_view', Eval('context', {})).get('model', -1))
         ], states={
             'required': Eval('type') == 'ir.model.button',
             'invisible': Eval('type') != 'ir.model.button',
-        }, depends=['type', 'view'])
+        })
     expand = fields.Integer('Expand',
         states={
-        }, depends=['type'])
+        })
     optional = fields.Selection([
             (None, ''),
             ('show', 'Show'),
@@ -411,7 +411,7 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView, sequence_ordered()):
         'on_change_with_model_name')
     sum_ = fields.Boolean('Sum', states={
             'invisible': (Eval('type') != 'ir.model.field')
-            }, depends=['type'])
+            })
 
     @staticmethod
     def default_searchable():
