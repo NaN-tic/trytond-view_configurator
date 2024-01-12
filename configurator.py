@@ -76,8 +76,7 @@ class ViewConfigurator(ModelSQL, ModelView):
             ('type', 'in', (None, 'tree')),
             ('model', '=', Eval('model_name')),
             ('inherit', '=',  None),
-        ],
-        depends=['model_name'])
+        ])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
         readonly=True)
     lines = fields.One2Many('view.configurator.line', 'view', "Lines")
