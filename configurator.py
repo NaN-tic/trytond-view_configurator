@@ -279,7 +279,7 @@ class ViewConfigurator(ModelSQL, ModelView):
             else:
                 optional = None
             invisible = attributes.get('tree_invisible', False)
-            if resources[name] not in existing_snapshot:
+            if not resources.get(name) and resources.get(name) not in existing_snapshot:
                 line = create_lines(type_, resources[name], expand, optional,
                     invisible)
                 snap = create_snapshot(type_, resources[name])
