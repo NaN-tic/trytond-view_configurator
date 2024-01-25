@@ -4,7 +4,7 @@ from collections import defaultdict
 from trytond.model import (ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
 from trytond.pool import Pool
-from trytond.pyson import Eval
+from trytond.pyson import Bool, Eval
 from sql import Column, Literal
 from lxml import etree
 from trytond.rpc import RPC
@@ -79,7 +79,10 @@ class ViewConfigurator(ModelSQL, ModelView):
         ])
     snapshot = fields.One2Many('view.configurator.snapshot', 'view', 'Snapshot',
         readonly=True)
-    lines = fields.One2Many('view.configurator.line', 'view', "Lines")
+    lines = fields.One2Many('view.configurator.line', 'view', "Lines",
+        states={
+            'readonly': ~Bool(Eval('snapshot', [])),
+            })
 
     @classmethod
     def __setup__(cls):
