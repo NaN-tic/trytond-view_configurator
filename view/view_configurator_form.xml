@@ -10,11 +10,11 @@ this repository contains the full copyright notices and license terms. -->
     <field name="view"/>
     <button name="do_snapshot" colspan="2"/>
     <notebook>
-      <page name="lines">
-        <field name="lines" colspan="2"/>
-      </page>
-      <page name="snapshot">
-        <field name="snapshot" colspan="2"/>
-      </page>
+        <page name="lines">
+            <field name="lines" colspan="2" height="500"/>
+        </page>
+        <page name="snapshot">
+            <field name="snapshot" colspan="2" height="500"/>
+        </page>
     </notebook>
 </form>
