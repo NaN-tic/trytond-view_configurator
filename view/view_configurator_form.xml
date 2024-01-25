@@ -4,10 +4,10 @@ this repository contains the full copyright notices and license terms. -->
 <form>
     <label name="model"/>
     <field name="model"/>
-    <label name="user"/>
-    <field name="user"/>
     <label name="view"/>
     <field name="view"/>
+    <label name="user"/>
+    <field name="user"/>
     <button name="do_snapshot" colspan="2"/>
     <notebook>
         <page name="lines">

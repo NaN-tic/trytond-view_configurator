@@ -3,6 +3,6 @@
 this repository contains the full copyright notices and license terms. -->
 <tree>
     <field name="model"/>
-    <field name="user"/>
     <field name="view"/>
+    <field name="user"/>
 </tree>
