@@ -8,6 +8,7 @@ this repository contains the full copyright notices and license terms. -->
     <field name="user"/>
     <label name="view"/>
     <field name="view"/>
+    <button name="do_snapshot" colspan="2"/>
     <notebook>
       <page name="lines">
         <field name="lines" colspan="2"/>
@@ -16,9 +17,4 @@ this repository contains the full copyright notices and license terms. -->
         <field name="snapshot" colspan="2"/>
       </page>
     </notebook>
-    <group col="3" colspan="4" id="state">
-        <group col="4" id="buttons">
-            <button name="do_snapshot"/>
-        </group>
-    </group>
 </form>
