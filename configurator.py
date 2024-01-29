@@ -206,7 +206,12 @@ class ViewConfigurator(ModelSQL, ModelView):
                     xml+= "<field %s/>\n" % attributes
             elif getattr(line, 'button', None):
                 name = 'name="%s"' % line.button.name
-                attributes = ' '.join([name, optional, invisible, expand, sum_])
+
+                invisible = ''
+                if line.searchable:
+                    invisible = 'tree_invisible="1"'
+
+                attributes = ' '.join([name, invisible])
                 xml += "<button %s/>\n" % attributes
         xml += '</tree>'
         return xml
