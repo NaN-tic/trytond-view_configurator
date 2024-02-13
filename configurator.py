@@ -345,7 +345,7 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
         return self.view.model.id if self.view else None
 
 
-class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
+class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
     '''View Configurator Line Field'''
     __name__ = 'view.configurator.line.field'
 
@@ -378,7 +378,7 @@ class ViewConfiguratorLineField(sequence_ordered(),ModelSQL, ModelView):
         return self.view.model.id if self.view else None
 
 
-class ViewConfiguratorLine(UnionMixin, sequence_ordered(), ModelSQL, ModelView):
+class ViewConfiguratorLine(sequence_ordered(), ModelSQL, ModelView, UnionMixin):
     '''View Configurator Line'''
     __name__ = 'view.configurator.line'
 
