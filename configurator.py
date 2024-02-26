@@ -378,10 +378,10 @@ class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
         return self.view.model.id if self.view else None
 
 
-class ViewConfiguratorLine(sequence_ordered(), ModelSQL, ModelView, UnionMixin):
+class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
     '''View Configurator Line'''
     __name__ = 'view.configurator.line'
-
+    sequence = fields.Integer('Sequence')
     view = fields.Many2One('view.configurator',
         'View Configurator', ondelete='CASCADE', required=True)
     type = fields.Selection([
@@ -420,6 +420,11 @@ class ViewConfiguratorLine(sequence_ordered(), ModelSQL, ModelView, UnionMixin):
     sum_ = fields.Boolean('Sum', states={
             'invisible': (Eval('type') != 'ir.model.field')
             }, depends=['type'])
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._order.insert(0, ('sequence', 'ASC NULLS FIRST'))
 
     @staticmethod
     def default_searchable():
