@@ -50,7 +50,7 @@ this repository contains the full copyright notices and license terms. -->
           <record model="ir.model.button" id="snapshot_button">
               <field name="name">do_snapshot</field>
               <field name="string">Snapshot</field>
-              <field name="model" search="[('model', '=', 'view.configurator')]"/>
+            <field name="model">view.configurator</field>
           </record>
           <record model="ir.model.button-res.group" id="snapshot_button_group">
               <field name="button" ref="snapshot_button"/>
@@ -59,7 +59,7 @@ this repository contains the full copyright notices and license terms. -->
           <record model="ir.model.button" id="draft_button">
               <field name="name">draft</field>
               <field name="string">Draft</field>
-              <field name="model" search="[('model', '=', 'view.configurator')]"/>
+            <field name="model">view.configurator</field>
           </record>
           <record model="ir.model.button-res.group" id="draft_button_group">
               <field name="button" ref="draft_button"/>
@@ -68,7 +68,7 @@ this repository contains the full copyright notices and license terms. -->
           <record model="ir.model.button" id="confirmed_button">
               <field name="name">confirmed</field>
               <field name="string">Confirmed</field>
-              <field name="model" search="[('model', '=', 'view.configurator')]"/>
+            <field name="model">view.configurator</field>
           </record>
           <record model="ir.model.button-res.group" id="confirmed_button_group">
               <field name="button" ref="confirmed_button"/>
@@ -77,7 +77,7 @@ this repository contains the full copyright notices and license terms. -->
           <record model="ir.model.button" id="cancel_button">
               <field name="name">cancel</field>
               <field name="string">Cancel</field>
-              <field name="model" search="[('model', '=', 'view.configurator')]"/>
+            <field name="model">view.configurator</field>
           </record>
           <record model="ir.model.button-res.group" id="cancel_button_group">
               <field name="button" ref="cancel_button"/>
