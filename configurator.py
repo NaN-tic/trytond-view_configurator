@@ -238,7 +238,9 @@ class ViewConfigurator(ModelSQL, ModelView):
             elif line.button:
                 existing_snapshot.append(line.button)
 
-        sbuttons = Button.search([('model', '=', self.model)])
+        sbuttons = Button.search([
+            ('model', '=', self.model.model),
+            ])
         for button in sbuttons:
             resources[button.name] = button
 
@@ -332,7 +334,7 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
     type = fields.Selection([
         ('ir.model.button', 'Button'),
         ], 'Type')
-    parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
+    parent_model = fields.Function(fields.Char('Model'),
         'on_change_with_parent_model')
 
     @staticmethod
@@ -341,7 +343,7 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
 
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        return self.view.model.id if self.view else None
+        return self.view.model.model if self.view else None
 
 
 class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
@@ -364,7 +366,7 @@ class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
     type = fields.Selection([
         ('ir.model.field', 'Field'),
         ], 'Type')
-    parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
+    parent_model = fields.Function(fields.Char('Model'),
         'on_change_with_parent_model')
     sum_ = fields.Boolean('Sum')
 
@@ -374,7 +376,7 @@ class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
 
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        return self.view.model.id if self.view else None
+        return self.view.model.model if self.view else None
 
 
 class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
@@ -388,15 +390,17 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
         ('ir.model.field', 'Field'),
         ], 'Type', required=True)
     field = fields.Many2One('ir.model.field', 'Field',
-        domain=[('model', '=',
-            Eval('_parent_view', Eval('context', {})).get('model', -1))
+        domain=[
+            ('model_ref', '=',
+                Eval('_parent_view', Eval('context', {})).get('model', -1))
         ], states={
             'required': Eval('type') == 'ir.model.field',
             'invisible': Eval('type') != 'ir.model.field',
         })
     button = fields.Many2One('ir.model.button', 'Button',
-        domain=[('model', '=',
-            Eval('_parent_view', Eval('context', {})).get('model', -1))
+        domain=[
+            ('model_ref', '=',
+                Eval('_parent_view', Eval('context', {})).get('model', -1))
         ], states={
             'required': Eval('type') == 'ir.model.button',
             'invisible': Eval('type') != 'ir.model.button',
@@ -412,10 +416,6 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
         "set to 'Show', the field is optional and shown by default. If set "
         "to 'Hide', the field is optional and hidden by default.")
     searchable = fields.Boolean('Searchable')
-    parent_model = fields.Function(fields.Many2One('ir.model', 'Model'),
-        'on_change_with_parent_model')
-    model_name = fields.Function(fields.Char('Model Name'),
-        'on_change_with_model_name')
     sum_ = fields.Boolean('Sum', states={
             'invisible': (Eval('type') != 'ir.model.field')
             })
@@ -432,14 +432,6 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
     @staticmethod
     def default_type():
         return 'ir.model.field'
-
-    @fields.depends('view', '_parent_view.model')
-    def on_change_with_parent_model(self, name=None):
-        return self.view.model.id if self.view else None
-
-    @fields.depends('parent_model')
-    def on_change_with_model_name(self, name=None):
-        return self.parent_model and self.parent_model.model or None
 
     @staticmethod
     def union_models():
