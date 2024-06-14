@@ -88,7 +88,7 @@ class ViewConfigurator(ModelSQL, ModelView):
 
     @classmethod
     def __setup__(cls):
-        super(ViewConfigurator, cls).__setup__()
+        super().__setup__()
         cls._buttons.update({
             'do_snapshot': {},
             })
@@ -108,7 +108,7 @@ class ViewConfigurator(ModelSQL, ModelView):
             lines += [x for x in view.lines]
         Lines.delete(lines)
         Snapshot.delete(snapshots)
-        super(ViewConfigurator, cls).delete(views)
+        super().delete(views)
 
     @classmethod
     def copy(cls, lines, default=None):
@@ -117,7 +117,7 @@ class ViewConfigurator(ModelSQL, ModelView):
         else:
             default = default.copy()
         default.setdefault('snapshot', None)
-        return super(ViewConfigurator, cls).copy(lines, default=default)
+        return super().copy(lines, default=default)
 
     @classmethod
     def get_custom_view(cls, model_name, view_id):
@@ -156,7 +156,7 @@ class ViewConfigurator(ModelSQL, ModelView):
 
     @classmethod
     def create(cls, vlist):
-        views = super(ViewConfigurator, cls).create(vlist)
+        views = super().create(vlist)
         for view in views:
             view.create_snapshot()
         ModelView._fields_view_get_cache.clear()
@@ -164,7 +164,7 @@ class ViewConfigurator(ModelSQL, ModelView):
 
     @classmethod
     def write(cls, views, values, *args):
-        super(ViewConfigurator, cls).write(views, values, *args)
+        super().write(views, values, *args)
         ModelView._fields_view_get_cache.clear()
 
     def generate_xml(self):
@@ -459,7 +459,7 @@ class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):
             if 'field' in Model.__name__:
                 value = Column(table, 'field')
             return value
-        return super(ViewConfiguratorLine, cls).union_column(name,
+        return super().union_column(name,
             field, table, Model)
 
     @classmethod
