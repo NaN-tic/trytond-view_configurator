@@ -19,26 +19,27 @@ class ModelViewMixin:
         view_id = view_id or None
         ViewConfigurator = Pool().get('view.configurator')
         user = Transaction().user or None
-        viewConfigurator = ViewConfigurator.search([
+
+        if ((view_type and view_type != 'tree')
+                or Transaction().context.get('avoid_custom_view')
+                or cls.__name__ == 'view.configurator'):
+            return super().fields_view_get(view_id, view_type, level)
+
+        configurations = ViewConfigurator.search([
             ('model.model', '=', cls.__name__),
             ('view', '=', view_id),
-            ('user', 'in', (None, user))
+            ('user', 'in', (None, user)),
             ], order=[('user', 'ASC')], limit=1)
-        context = Transaction().context
-        if (not viewConfigurator or context.get('avoid_custom_view') or
-                cls.__name__ == 'view.configurator'):
-            result = super(ModelViewMixin, cls).fields_view_get(view_id,
-                view_type, level)
-            return result
+        if not configurations:
+            return super().fields_view_get(view_id, view_type, level)
 
-        view_configurator, = viewConfigurator
+        view_configurator, = configurations
         key = (cls.__name__, view_configurator.id)
-        result = cls._fields_view_get_cache.get(key)
-        if result:
-            return result
+        cached = cls._fields_view_get_cache.get(key)
+        if cached:
+            return cached
 
-        result = super(ModelViewMixin, cls).fields_view_get(view_id, view_type,
-            level)
+        result = super().fields_view_get(view_id, view_type, level)
         if result.get('type') != 'tree':
             return result
         xml = view_configurator.generate_xml()
