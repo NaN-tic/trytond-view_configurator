@@ -50,7 +50,7 @@ class ModelViewMixin:
             level = 1 if result['type'] == 'tree' else 0
 
         result['arch'], result['fields'] = cls.parse_view(tree, 'tree',
-            result['field_childs'], level=level)
+            field_children=result['field_childs'], level=level)
         cls._fields_view_get_cache.set(key, result)
         return result
 
