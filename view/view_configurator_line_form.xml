@@ -3,17 +3,19 @@
 this repository contains the full copyright notices and license terms. -->
 <form>
     <label name="type"/>
-    <field name="type" colspan="3"/>
+    <field name="type"/>
+    <label name="sequence"/>
+    <field name="sequence"/>
     <label name="field"/>
     <field name="field"/>
     <label name="button"/>
     <field name="button"/>
+    <label name="optional"/>
+    <field name="optional"/>
     <label name="expand"/>
     <field name="expand"/>
     <label name="searchable"/>
     <field name="searchable"/>
-    <label name="sequence"/>
-    <field name="sequence"/>
     <label name="sum_"/>
     <field name="sum_"/>
 </form>
