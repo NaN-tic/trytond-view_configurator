@@ -167,9 +167,19 @@ class ViewConfigurator(ModelSQL, ModelView):
         ModelView._fields_view_get_cache.clear()
 
     def generate_xml(self):
+        pool = Pool()
+
         xml = '<?xml version="1.0"?>\n'
         xml += '<tree>\n'
         new_lines, _ = self.get_difference()
+
+        if self.view:
+            ViewTreeOptional = pool.get('ir.ui.view_tree_optional')
+            viewtreeoptionals = ViewTreeOptional.search([
+                    ('view_id', '=', self.view),
+                    ('user', '=', Transaction().user),
+                    ])
+            optionals = {o.field: o.value for o in viewtreeoptionals}
 
         for line in self.lines + tuple(new_lines):
             if getattr(line, 'field', None):
@@ -180,10 +190,14 @@ class ViewConfigurator(ModelSQL, ModelView):
                 name = 'name="%s"' % line.field.name
 
                 optional = ''
-                if line.optional == 'show':
-                    optional = 'optional="0"'
-                elif line.optional == 'hide':
-                    optional = 'optional="1"'
+                if line.optional:
+                    if line.field.name in optionals:
+                        op = str(int(optionals[line.field.name]))
+                    elif line.optional == 'show':
+                        op = '0'
+                    elif line.optional == 'hide':
+                        op = '1'
+                    optional = f'optional="{op}"'
 
                 invisible = ''
                 if line.searchable:
