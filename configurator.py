@@ -180,6 +180,8 @@ class ViewConfigurator(ModelSQL, ModelView):
                     ('user', '=', Transaction().user),
                     ])
             optionals = {o.field: o.value for o in viewtreeoptionals}
+        else:
+            optionals = {}
 
         for line in self.lines + tuple(new_lines):
             if getattr(line, 'field', None):
