@@ -26,7 +26,7 @@ class ModelViewMixin:
             return super().fields_view_get(view_id, view_type, level)
 
         configurations = ViewConfigurator.search([
-            ('model.model', '=', cls.__name__),
+            ('model.name', '=', cls.__name__),
             ('view', '=', view_id),
             ('user', 'in', (None, user)),
             ], order=[('user', 'ASC')], limit=1)
@@ -131,7 +131,7 @@ class ViewConfigurator(ModelSQL, ModelView):
             view_id = int(view_id)
 
         user = Transaction().user
-        domain = [('model.model','=', model_name), ('user', '=', user)]
+        domain = [('model.name','=', model_name), ('user', '=', user)]
         if view_id:
             domain += [('view', '=', view_id)]
 
@@ -140,7 +140,7 @@ class ViewConfigurator(ModelSQL, ModelView):
             custom_view, = custom_views
             return custom_view.id
 
-        model, = Model.search([('model', '=', model_name)])
+        model, = Model.search([('name', '=', model_name)])
         custom_view = cls()
         custom_view.model = model
         if view_id:
@@ -151,7 +151,7 @@ class ViewConfigurator(ModelSQL, ModelView):
 
     @fields.depends('model')
     def on_change_with_model_name(self, name=None):
-        return self.model and self.model.model or None
+        return self.model and self.model.name or None
 
     @classmethod
     def create(cls, vlist):
@@ -235,7 +235,7 @@ class ViewConfigurator(ModelSQL, ModelView):
 
     def get_difference(self):
         pool = Pool()
-        Model = pool.get(self.model.model)
+        Model = pool.get(self.model.name)
         Snapshot = pool.get('view.configurator.snapshot')
         FieldLine = pool.get('view.configurator.line.field')
         ButtonLine = pool.get('view.configurator.line.button')
@@ -256,7 +256,7 @@ class ViewConfigurator(ModelSQL, ModelView):
                 existing_snapshot.append(line.button)
 
         sbuttons = Button.search([
-            ('model', '=', self.model.model),
+            ('model', '=', self.model.name),
             ])
         for button in sbuttons:
             resources[button.name] = button
@@ -360,7 +360,7 @@ class ViewConfiguratorLineButton(sequence_ordered(), ModelSQL, ModelView):
 
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        return self.view.model.model if self.view else None
+        return self.view.model.name if self.view else None
 
 
 class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
@@ -393,7 +393,7 @@ class ViewConfiguratorLineField(sequence_ordered(), ModelSQL, ModelView):
 
     @fields.depends('view', '_parent_view.model')
     def on_change_with_parent_model(self, name=None):
-        return self.view.model.model if self.view else None
+        return self.view.model.name if self.view else None
 
 
 class ViewConfiguratorLine(UnionMixin, ModelSQL, ModelView):

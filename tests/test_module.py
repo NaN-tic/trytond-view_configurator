@@ -19,10 +19,10 @@ class ViewConfiguratorTestCase(ModuleTestCase):
         Fields = pool.get('ir.model.field')
 
         model, = Model.search([
-            ('model', '=', 'ir.attachment')
+            ('name', '=', 'ir.attachment')
             ], limit=1)
         fields = dict((f.name, f) for f in Fields.search([
-            ('model.model', '=', 'ir.attachment')
+            ('model.name', '=', 'ir.attachment')
             ]))
 
         conf1, = Configuration.create([{
