@@ -212,7 +212,7 @@ class ViewConfigurator(ModelSQL, ModelView):
                 sum_ = ''
                 if (getattr(line, 'sum_', None) and line.field.ttype in (
                         'integer', 'float', 'numeric', 'timedelta')):
-                    sum_ = 'sum="%s"' % line.field.name
+                    sum_ = 'sum="1"'
 
                 attributes = ' '.join([name, optional, invisible, expand, sum_])
 
