@@ -1,7 +1,7 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from collections import defaultdict
-from trytond.model import (ModelSQL, ModelView, fields,
+from trytond.model import (DeactivableMixin, ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
 from trytond.pool import Pool
 from trytond.pyson import Bool, Eval
@@ -18,22 +18,39 @@ class ModelViewMixin:
     def fields_view_get(cls, view_id=None, view_type='form', level=None):
         view_id = view_id or None
         ViewConfigurator = Pool().get('view.configurator')
-        user = Transaction().user or None
+        user_id = Transaction().user or None
 
-        if ((view_type and view_type != 'tree')
-                or Transaction().context.get('avoid_custom_view')
+        # One2many fields with XML view_ids attribute, call fields_view_get()
+        # without specifying a view_type (default view_type is 'form')
+        if (Transaction().context.get('avoid_custom_view')
                 or cls.__name__ == 'view.configurator'):
             return super().fields_view_get(view_id, view_type, level)
 
-        configurations = ViewConfigurator.search([
+        view_configurations = ViewConfigurator.search([
             ('model.model', '=', cls.__name__),
-            ('view', '=', view_id),
-            ('user', 'in', (None, user)),
-            ], order=[('user', 'ASC')], limit=1)
-        if not configurations:
+            ('view', 'in', (None, view_id)),
+            ('user', 'in', (None, user_id)),
+            ], order=[('user', 'ASC')])
+
+        for view_configurator in view_configurations:
+            vc_view = view_configurator.view
+            vc_user = view_configurator.user
+
+            if (vc_view and vc_view.id == view_id
+                    and vc_user and vc_user.id == user_id):
+                break
+            elif (not vc_view and vc_user and vc_user.id == user_id):
+                break
+            elif (not vc_user and vc_view and vc_view.id == view_id):
+                break
+        else:
+            view_confs = [vc for vc in view_configurations
+                if not view_configurator.user and not view_configurator.view]
+            view_configurator = view_confs[0] if view_confs else None
+
+        if not view_configurator:
             return super().fields_view_get(view_id, view_type, level)
 
-        view_configurator, = configurations
         key = (cls.__name__, view_configurator.id)
         cached = cls._fields_view_get_cache.get(key)
         if cached:
@@ -64,7 +81,7 @@ class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     button = fields.Many2One('ir.model.button', 'Button')
 
 
-class ViewConfigurator(ModelSQL, ModelView):
+class ViewConfigurator(DeactivableMixin, ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
