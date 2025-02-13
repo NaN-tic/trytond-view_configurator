@@ -16,13 +16,22 @@ class ModelViewMixin:
 
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form', level=None):
-        view_id = view_id or None
-        ViewConfigurator = Pool().get('view.configurator')
+        pool = Pool()
+        ViewConfigurator = pool.get('view.configurator')
+        UiView = pool.get('ir.ui.view')
+
         user_id = Transaction().user or None
+        view_id = view_id or None
+        is_view_form = view_type == 'form'
+
+        if view_id:
+            view = UiView(view_id)
+            is_view_form = view.type == 'form'
 
         # One2many fields with XML view_ids attribute, call fields_view_get()
         # without specifying a view_type (default view_type is 'form')
-        if (Transaction().context.get('avoid_custom_view')
+        if (is_view_form
+                or Transaction().context.get('avoid_custom_view')
                 or cls.__name__ == 'view.configurator'):
             return super().fields_view_get(view_id, view_type, level)
 

@@ -57,7 +57,8 @@ class ViewConfiguratorTestCase(ModuleTestCase):
         ModelField = pool.get('ir.model.field')
         View = pool.get('ir.ui.view')
 
-        view, = View.search(['name', '=', 'model_field_list'], limit=1)
+        view_tree, = View.search(['name', '=', 'model_field_list'], limit=1)
+        view_form, = View.search(['name', '=', 'model_field_form'], limit=1)
 
         model, = Model.search([
             ('model', '=', 'ir.model.field')
@@ -86,7 +87,7 @@ class ViewConfiguratorTestCase(ModuleTestCase):
         self.assertEqual(len(conf1.lines), 2)
 
         # test model tree view + one2many field tree view
-        view1 = ModelField.fields_view_get(view_id=view.id)
+        view1 = ModelField.fields_view_get(view_id=view_tree.id)
         view2 = ModelField.fields_view_get(view_type='tree')
         for view in (view1, view2):
             self.assertEqual(view['type'], 'tree')
@@ -98,5 +99,11 @@ class ViewConfiguratorTestCase(ModuleTestCase):
         # fields <filename> views tree arch
         self.assertEqual(view3['fields']['fields']['views']['tree']['arch'],
             view1['arch'])
+
+        view4 = ModelField.fields_view_get(view_id=view_form.id)
+        view5 = ModelField.fields_view_get(view_type='form')
+        for view in (view4, view5):
+            self.assertEqual(view['type'], 'form')
+            self.assertEqual(view['arch'].startswith("<form><label"), True)
 
 del ModuleTestCase
