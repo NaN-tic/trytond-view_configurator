@@ -22,43 +22,34 @@ class ModelViewMixin:
 
         user_id = Transaction().user or None
         view_id = view_id or None
-        is_view_form = view_type == 'form'
+        is_view_tree = view_type == 'tree'
 
         if view_id:
             view = UiView(view_id)
-            is_view_form = view.type == 'form'
+            is_view_tree = view.type == 'tree'
 
         # One2many fields with XML view_ids attribute, call fields_view_get()
         # without specifying a view_type (default view_type is 'form')
-        if (is_view_form
+        if (not is_view_tree
                 or Transaction().context.get('avoid_custom_view')
                 or cls.__name__ == 'view.configurator'):
             return super().fields_view_get(view_id, view_type, level)
 
+        if not view_id:
+            views = UiView.search([
+                    ('model.model', '=', cls.__name__),
+                    ('type', '=', 'tree'),
+                    ], limit=1)
+            if views:
+                view_id = views[0].id
         view_configurations = ViewConfigurator.search([
-            ('model.model', '=', cls.__name__),
-            ('view', 'in', (None, view_id)),
-            ('user', 'in', (None, user_id)),
-            ], order=[('user', 'ASC')])
-
-        for view_configurator in view_configurations:
-            vc_view = view_configurator.view
-            vc_user = view_configurator.user
-
-            if (vc_view and vc_view.id == view_id
-                    and vc_user and vc_user.id == user_id):
-                break
-            elif (not vc_view and vc_user and vc_user.id == user_id):
-                break
-            elif (not vc_user and vc_view and vc_view.id == view_id):
-                break
-        else:
-            view_confs = [vc for vc in view_configurations
-                if not view_configurator.user and not view_configurator.view]
-            view_configurator = view_confs[0] if view_confs else None
-
-        if not view_configurator:
+                ('model.model', '=', cls.__name__),
+                ('view', 'in', (None, view_id)),
+                ('user', 'in', (None, user_id)),
+                ], limit=1)
+        if not view_configurations:
             return super().fields_view_get(view_id, view_type, level)
+        view_configurator, = view_configurations
 
         key = (cls.__name__, view_configurator.id)
         cached = cls._fields_view_get_cache.get(key)
