@@ -81,7 +81,7 @@ class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     button = fields.Many2One('ir.model.button', 'Button')
 
 
-class ViewConfigurator(DeactivableMixin, ModelSQL, ModelView):
+class ViewConfigurator(sequence_ordered(), DeactivableMixin, ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
