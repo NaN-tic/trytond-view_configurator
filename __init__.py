@@ -3,6 +3,7 @@
 from trytond.pool import Pool
 from trytond.model import ModelView
 from . import configurator
+from . import view
 
 def register():
     Pool.register(
@@ -11,6 +12,7 @@ def register():
         configurator.ViewConfiguratorSnapshot,
         configurator.ViewConfiguratorLineField,
         configurator.ViewConfiguratorLineButton,
+        view.View,
         module='view_configurator', type_='model')
     Pool.register_mixin(
         configurator.ModelViewMixin, ModelView, module='view_configurator')

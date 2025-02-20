@@ -1,7 +1,7 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from collections import defaultdict
-from trytond.model import (ModelSQL, ModelView, fields,
+from trytond.model import (DeactivableMixin, ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
 from trytond.pool import Pool
 from trytond.pyson import Bool, Eval
@@ -16,24 +16,41 @@ class ModelViewMixin:
 
     @classmethod
     def fields_view_get(cls, view_id=None, view_type='form', level=None):
-        view_id = view_id or None
-        ViewConfigurator = Pool().get('view.configurator')
-        user = Transaction().user or None
+        pool = Pool()
+        ViewConfigurator = pool.get('view.configurator')
+        UiView = pool.get('ir.ui.view')
 
-        if ((view_type and view_type != 'tree')
+        user_id = Transaction().user or None
+        view_id = view_id or None
+        is_view_tree = view_type == 'tree'
+
+        if view_id:
+            view = UiView(view_id)
+            is_view_tree = view.type == 'tree'
+
+        # One2many fields with XML view_ids attribute, call fields_view_get()
+        # without specifying a view_type (default view_type is 'form')
+        if (not is_view_tree
                 or Transaction().context.get('avoid_custom_view')
                 or cls.__name__ == 'view.configurator'):
             return super().fields_view_get(view_id, view_type, level)
 
-        configurations = ViewConfigurator.search([
-            ('model.name', '=', cls.__name__),
-            ('view', '=', view_id),
-            ('user', 'in', (None, user)),
-            ], order=[('user', 'ASC')], limit=1)
-        if not configurations:
+        if not view_id:
+            views = UiView.search([
+                    ('model.model', '=', cls.__name__),
+                    ('type', '=', 'tree'),
+                    ], limit=1)
+            if views:
+                view_id = views[0].id
+        view_configurations = ViewConfigurator.search([
+                ('model.name', '=', cls.__name__),
+                ('view', 'in', (None, view_id)),
+                ('user', 'in', (None, user_id)),
+                ], limit=1)
+        if not view_configurations:
             return super().fields_view_get(view_id, view_type, level)
+        view_configurator, = view_configurations
 
-        view_configurator, = configurations
         key = (cls.__name__, view_configurator.id)
         cached = cls._fields_view_get_cache.get(key)
         if cached:
@@ -64,7 +81,7 @@ class ViewConfiguratorSnapshot(ModelSQL, ModelView):
     button = fields.Many2One('ir.model.button', 'Button')
 
 
-class ViewConfigurator(ModelSQL, ModelView):
+class ViewConfigurator(sequence_ordered(), DeactivableMixin, ModelSQL, ModelView):
     '''View Configurator'''
     __name__ = 'view.configurator'
 
