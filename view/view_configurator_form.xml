@@ -8,6 +8,10 @@ this repository contains the full copyright notices and license terms. -->
     <field name="view"/>
     <label name="user"/>
     <field name="user"/>
+    <label name="active"/>
+    <field name="active"/>
+    <label name="sequence"/>
+    <field name="sequence"/>
     <button name="do_snapshot" colspan="2"/>
     <notebook>
         <page name="lines">
