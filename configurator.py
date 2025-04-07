@@ -21,11 +21,11 @@ class ModelViewMixin:
         UiView = pool.get('ir.ui.view')
 
         user_id = Transaction().user or None
-        view_id = view_id or None
+        view_conf_id = view_id or None
         is_view_tree = view_type == 'tree'
 
-        if view_id:
-            view = UiView(view_id)
+        if view_conf_id:
+            view = UiView(view_conf_id)
             is_view_tree = view.type == 'tree'
 
         # One2many fields with XML view_ids attribute, call fields_view_get()
@@ -35,16 +35,16 @@ class ModelViewMixin:
                 or cls.__name__ == 'view.configurator'):
             return super().fields_view_get(view_id, view_type, level)
 
-        if not view_id:
+        if not view_conf_id:
             views = UiView.search([
                     ('model.model', '=', cls.__name__),
                     ('type', '=', 'tree'),
                     ], limit=1)
             if views:
-                view_id = views[0].id
+                view_conf_id = views[0].id
         view_configurations = ViewConfigurator.search([
                 ('model.model', '=', cls.__name__),
-                ('view', 'in', (None, view_id)),
+                ('view', 'in', (None, view_conf_id)),
                 ('user', 'in', (None, user_id)),
                 ], limit=1)
         if not view_configurations:
@@ -56,7 +56,7 @@ class ModelViewMixin:
         if cached:
             return cached
 
-        result = super().fields_view_get(view_id, view_type, level)
+        result = super().fields_view_get(view_conf_id, view_type, level)
         if result.get('type') != 'tree':
             return result
         xml = view_configurator.generate_xml()
