@@ -85,7 +85,10 @@ class ViewConfigurator(sequence_ordered(), DeactivableMixin, ModelSQL, ModelView
     '''View Configurator'''
     __name__ = 'view.configurator'
 
-    model = fields.Many2One('ir.model', 'Model', required=True)
+    model = fields.Many2One('ir.model', 'Model', required=True,
+        states={
+            'readonly': Eval('lines', [0]) & Eval('model'),
+            })
     model_name = fields.Function(fields.Char('Model Name'),
         'on_change_with_model_name')
     user = fields.Many2One('res.user', 'User')
