@@ -196,7 +196,7 @@ class ViewConfigurator(sequence_ordered(), DeactivableMixin, ModelSQL, ModelView
         if self.view:
             ViewTreeOptional = pool.get('ir.ui.view_tree_optional')
             viewtreeoptionals = ViewTreeOptional.search([
-                    ('view_id', '=', self.view),
+                    ('view', '=', self.view),
                     ('user', '=', Transaction().user),
                     ])
             optionals = {o.field: o.value for o in viewtreeoptionals}
