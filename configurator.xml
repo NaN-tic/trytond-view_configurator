@@ -84,7 +84,7 @@ this repository contains the full copyright notices and license terms. -->
               <field name="group" ref="res.group_admin"/>
           </record>
 
-          <menuitem name="View configurator" parent="ir.menu_administration"
+          <menuitem name="View configurator" parent="ir.menu_view"
               id="menu_view_configurator"
               action="act_view_configurator_form" sequence="20"/>
     </data>
