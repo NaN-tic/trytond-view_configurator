@@ -65,7 +65,8 @@ class ModelViewMixin:
 
         if level is None:
             level = 1 if result['type'] == 'tree' else 0
-
+        # convert mappingproxy to dict
+        result = dict(result)
         result['arch'], result['fields'] = cls.parse_view(tree, 'tree',
             field_children=result['field_childs'], level=level)
         cls._fields_view_get_cache.set(key, result)
