@@ -57,6 +57,8 @@ class ModelViewMixin:
             return cached
 
         result = super().fields_view_get(view_conf_id, view_type, level)
+        # Convert from mappingproxy to dict to be able to modify it
+        result = dict(result)
         if result.get('type') != 'tree':
             return result
         xml = view_configurator.generate_xml()
