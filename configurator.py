@@ -3,6 +3,8 @@
 from collections import defaultdict
 from trytond.model import (DeactivableMixin, ModelSQL, ModelView, fields,
     sequence_ordered, UnionMixin)
+from trytond.i18n import gettext
+from trytond.model.modelstorage import AccessError
 from trytond.pool import Pool
 from trytond.pyson import Bool, Eval
 from sql import Column, Literal
@@ -350,6 +352,9 @@ class ViewConfigurator(sequence_ordered(), DeactivableMixin, ModelSQL, ModelView
     @classmethod
     @ModelView.button
     def do_snapshot(cls, views):
+        if not Pool().get('res.user').is_administrator():
+            raise AccessError(gettext('ir.msg_access_button_error',
+                    button='do_snapshot', **cls.__names__()))
         for view in views:
             view.create_snapshot()
 
