@@ -72,7 +72,8 @@ class ModelViewMixin:
         # convert mappingproxy to dict
         result = dict(result)
         result['arch'], result['fields'] = cls.parse_view(tree, 'tree',
-            field_children=result['field_childs'], level=level)
+            view_id=view_conf_id, field_children=result['field_childs'],
+            level=level)
         cls._fields_view_get_cache.set(key, result)
         return result
 
