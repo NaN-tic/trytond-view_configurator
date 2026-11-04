@@ -1,0 +1,255 @@
+#
+msgid ""
+msgstr ""
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "field:view.configurator,lines:"
+msgid "Lines"
+msgstr "明细"
+
+msgctxt "field:view.configurator,model:"
+msgid "Model"
+msgstr "模型"
+
+msgctxt "field:view.configurator,model_name:"
+msgid "Model Name"
+msgstr "模型名称"
+
+msgctxt "field:view.configurator,snapshot:"
+msgid "Snapshot"
+msgstr "快照"
+
+msgctxt "field:view.configurator,user:"
+msgid "User"
+msgstr "用户"
+
+msgctxt "field:view.configurator,view:"
+msgid "View"
+msgstr "视图"
+
+msgctxt "field:view.configurator.line,button:"
+msgid "Button"
+msgstr "按钮"
+
+msgctxt "field:view.configurator.line,expand:"
+msgid "Expand"
+msgstr "展开"
+
+msgctxt "field:view.configurator.line,field:"
+msgid "Field"
+msgstr "字段"
+
+msgctxt "field:view.configurator.line,model_name:"
+msgid "Model Name"
+msgstr "模型名称"
+
+msgctxt "field:view.configurator.line,optional:"
+msgid "Optional"
+msgstr "可选"
+
+msgctxt "field:view.configurator.line,parent_model:"
+msgid "Model"
+msgstr "模型"
+
+msgctxt "field:view.configurator.line,searchable:"
+msgid "Searchable"
+msgstr "可搜索"
+
+msgctxt "field:view.configurator.line,sum_:"
+msgid "Sum"
+msgstr "求和"
+
+msgctxt "field:view.configurator.line,type:"
+msgid "Type"
+msgstr "科目"
+
+msgctxt "field:view.configurator.line,view:"
+msgid "View Configurator"
+msgstr "视图配置器"
+
+msgctxt "field:view.configurator.line.button,button:"
+msgid "Button"
+msgstr "按钮"
+
+msgctxt "field:view.configurator.line.button,expand:"
+msgid "Expand"
+msgstr "展开"
+
+msgctxt "field:view.configurator.line.button,optional:"
+msgid "Optional"
+msgstr "可选"
+
+msgctxt "field:view.configurator.line.button,parent_model:"
+msgid "Model"
+msgstr "模型"
+
+msgctxt "field:view.configurator.line.button,searchable:"
+msgid "Searchable"
+msgstr "可搜索"
+
+msgctxt "field:view.configurator.line.button,type:"
+msgid "Type"
+msgstr "科目"
+
+msgctxt "field:view.configurator.line.button,view:"
+msgid "View Configurator"
+msgstr "视图配置器"
+
+msgctxt "field:view.configurator.line.field,expand:"
+msgid "Expand"
+msgstr "展开"
+
+msgctxt "field:view.configurator.line.field,field:"
+msgid "Field"
+msgstr "字段"
+
+msgctxt "field:view.configurator.line.field,optional:"
+msgid "Optional"
+msgstr "可选"
+
+msgctxt "field:view.configurator.line.field,parent_model:"
+msgid "Model"
+msgstr "模型"
+
+msgctxt "field:view.configurator.line.field,searchable:"
+msgid "Searchable"
+msgstr "可搜索"
+
+msgctxt "field:view.configurator.line.field,sum_:"
+msgid "Sum"
+msgstr "求和"
+
+msgctxt "field:view.configurator.line.field,type:"
+msgid "Type"
+msgstr "科目"
+
+msgctxt "field:view.configurator.line.field,view:"
+msgid "View Configurator"
+msgstr "视图配置器"
+
+msgctxt "field:view.configurator.snapshot,button:"
+msgid "Button"
+msgstr "按钮"
+
+msgctxt "field:view.configurator.snapshot,field:"
+msgid "Field"
+msgstr "字段"
+
+msgctxt "field:view.configurator.snapshot,view:"
+msgid "View"
+msgstr "视图"
+
+msgctxt "help:view.configurator.line,optional:"
+msgid ""
+"If left empty, the field is not optional. If set to 'Show', the field is "
+"optional and shown by default. If set to 'Hide', the field is optional and "
+"hidden by default."
+msgstr "留空表示该字段不可选。设为“显示”表示该字段可选且默认显示。设为“隐藏”表示该字段可选且默认隐藏。"
+
+msgctxt "model:ir.action,name:act_view_configurator_form"
+msgid "View Configurator"
+msgstr "视图配置器"
+
+msgctxt "model:ir.model.button,string:cancel_button"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt "model:ir.model.button,string:confirmed_button"
+msgid "Confirmed"
+msgstr "已确认"
+
+msgctxt "model:ir.model.button,string:draft_button"
+msgid "Draft"
+msgstr "草案"
+
+msgctxt "model:ir.model.button,string:snapshot_button"
+msgid "Snapshot"
+msgstr "快照"
+
+msgctxt "model:ir.ui.menu,name:menu_view_configurator"
+msgid "View configurator"
+msgstr "视图配置器"
+
+msgctxt "model:view.configurator,name:"
+msgid "View Configurator"
+msgstr "视图配置器"
+
+msgctxt "model:view.configurator.line,name:"
+msgid "View Configurator Line"
+msgstr "视图配置器明细"
+
+msgctxt "model:view.configurator.line.button,name:"
+msgid "View Configurator Line Button"
+msgstr "视图配置器按钮明细"
+
+msgctxt "model:view.configurator.line.field,name:"
+msgid "View Configurator Line Field"
+msgstr "视图配置器字段明细"
+
+msgctxt "model:view.configurator.snapshot,name:"
+msgid "View configurator Snapshot"
+msgstr "视图配置器快照"
+
+msgctxt "selection:view.configurator.line,optional:"
+msgid "Hide"
+msgstr "隐藏"
+
+msgctxt "selection:view.configurator.line,optional:"
+msgid "Show"
+msgstr "显示"
+
+msgctxt "selection:view.configurator.line,type:"
+msgid "Button"
+msgstr "按钮"
+
+msgctxt "selection:view.configurator.line,type:"
+msgid "Field"
+msgstr "字段"
+
+msgctxt "selection:view.configurator.line.button,optional:"
+msgid "Hide"
+msgstr "隐藏"
+
+msgctxt "selection:view.configurator.line.button,optional:"
+msgid "Show"
+msgstr "显示"
+
+msgctxt "selection:view.configurator.line.button,type:"
+msgid "Button"
+msgstr "按钮"
+
+msgctxt "selection:view.configurator.line.field,optional:"
+msgid "Hide"
+msgstr "隐藏"
+
+msgctxt "selection:view.configurator.line.field,optional:"
+msgid "Show"
+msgstr "显示"
+
+msgctxt "selection:view.configurator.line.field,type:"
+msgid "Field"
+msgstr "字段"
+
+msgctxt "field:view.configurator.line,sequence:"
+msgid "Sequence"
+msgstr "序列"
+
+msgctxt "model:view.configurator.line.button,string:"
+msgid "View Configurator Line Button"
+msgstr "视图配置器按钮明细"
+
+msgctxt "model:view.configurator.line.field,string:"
+msgid "View Configurator Line Field"
+msgstr "视图配置器字段明细"
+
+msgctxt "model:view.configurator.line,string:"
+msgid "View Configurator Line"
+msgstr "视图配置器明细"
+
+msgctxt "model:view.configurator,string:"
+msgid "View Configurator"
+msgstr "视图配置器"
